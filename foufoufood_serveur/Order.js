@@ -1,3 +1,24 @@
+const mongoose = require('mongoose');
+
+// Schéma pour les commandes
+const orderSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
+    items: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem', required: true }],
+    totalPrice: { type: Number, required: true },
+    status: { type: String, required: true },
+    deliveryAddress: { type: String, required: true },
+    deliveryPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
+});
+
+// Création du modèle pour les commandes
+const Order = mongoose.model('Order', orderSchema);
+
+module.exports = Order;
+
+/*
 class Order {
     constructor(id, userId, restaurantId, items, totalPrice, status, deliveryAddress, deliveryPartner, createdAt, updatedAt) {
         this.id = id;
@@ -14,3 +35,4 @@ class Order {
 }
 
 module.exports = Order;
+*/
