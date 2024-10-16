@@ -9,6 +9,7 @@ const MenuItem = require('./MenuItem');
 const DeliveryPartner = require('./DeliveryPartner');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 app.use(express.json()); // Pour parser les corps de requêtes JSON
 
@@ -30,7 +31,7 @@ app.get('/', (req, res) => {
 });
 
 // Route des utilisateurs
-app.get('/users', async (req, res) => {
+app.get('/users', authenticateToken, async (req, res) => {
   //res.send(`<h1>Utilisateurs</h1><br> ${JSON.stringify(simulator.users)}`);
   try {
     const users = await User.find();
@@ -42,7 +43,7 @@ app.get('/users', async (req, res) => {
 });
 
 // Créer un nouvel utilisateur
-app.post('/users', async (req, res) => {
+app.post('/users', authenticateToken, async (req, res) => {
   const newUser = new User(req.body);
   try {
     const savedUser = await newUser.save();
@@ -54,7 +55,7 @@ app.post('/users', async (req, res) => {
 });
 
 // Route des restaurants
-app.get('/restaurants', async (req, res) => {
+app.get('/restaurants', authenticateToken, async (req, res) => {
   //res.send(`<h1>Restaurants</h1><br> ${JSON.stringify(simulator.restaurants)}`);
   try {
     const restaurants = await Restaurant.find();
@@ -66,7 +67,7 @@ app.get('/restaurants', async (req, res) => {
 });
 
 // Route des livreurs
-app.get('/deliverypartners', async (req, res) => {
+app.get('/deliverypartners', authenticateToken, async (req, res) => {
   //res.send(`<h1>Livreurs</h1><br> ${JSON.stringify(simulator.deliveryPartners)}`);
   try {
     const deliverypartners = await DeliveryPartner.find();
@@ -78,7 +79,7 @@ app.get('/deliverypartners', async (req, res) => {
 });
 
 // Route des commandes
-app.get('/orders', async (req, res) => {
+app.get('/orders', authenticateToken, async (req, res) => {
   //res.send(`<h1>Commandes</h1><br> ${JSON.stringify(simulator.orders)}`);
   try {
     const orders = await Order.find();
@@ -88,6 +89,8 @@ app.get('/orders', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
+const secret = process.env.JWT_SECRET;
 
 // Se connecter
 app.post('/login', async (req, res) => {
@@ -103,11 +106,35 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    res.status(200).json({ message: 'Connecté' });
+    const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '1d' });
+    res.status(200).json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+const invalidTokens = []; // Liste noire des tokens invalidés
+
+// Middleware pour vérifier si le token est valide et non invalidé
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
+  }
+
+  if (invalidTokens.includes(token)) {
+    return res.status(401).json({ error: 'Token has been invalidated' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, secret);
+    req.user = decoded; // Vous pouvez utiliser req.user dans la route pour accéder aux infos utilisateur
+    next(); // Continuer si le token est valide
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');

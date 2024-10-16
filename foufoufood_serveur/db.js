@@ -303,6 +303,5 @@ async function addSampleData() {
 // Exécution du script
 (async () => {
     await connectToDatabase();
-    await addSampleData();
     await closeDatabaseConnection();
 })();
