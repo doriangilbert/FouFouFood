@@ -49,7 +49,7 @@ async function addSampleData() {
                 password: 'password123',
                 phone: '123 456 7890',
                 address: '123 Rue Nairobi',
-                isAdmin: false,
+                role: 'restaurant',
                 orders: []
             }),
             new User({
@@ -59,7 +59,7 @@ async function addSampleData() {
                 password: 'password456',
                 phone: '456 123 7890',
                 address: '456 Oak Ave',
-                isAdmin: false,
+                role: 'utilisateur',
                 orders: []
             }),
             new User({
@@ -69,7 +69,7 @@ async function addSampleData() {
                 password: 'password789',
                 phone: '124 356 7890',
                 address: '789 Pine St',
-                isAdmin: false,
+                role: 'restaurant',
                 orders: []
             }),
             new User({
@@ -79,7 +79,7 @@ async function addSampleData() {
                 password: 'password012',
                 phone: '123 496 7890',
                 address: '1011 Douala Avenue',
-                isAdmin: false,
+                role: 'livreur',
                 orders: []
             }),
             new User({
@@ -89,7 +89,7 @@ async function addSampleData() {
                 password: 'password345',
                 phone: '123 456 7000',
                 address: '北京路123號',
-                isAdmin: false,
+                role: 'utilisateur',
                 orders: []
             }),
             new User({
@@ -99,7 +99,7 @@ async function addSampleData() {
                 password: 'password678',
                 phone: '123 123 7890',
                 address: '1415 Rue Champlain',
-                isAdmin: false,
+                role: 'admin',
                 orders: []
             })
         ];
@@ -303,5 +303,6 @@ async function addSampleData() {
 // Exécution du script
 (async () => {
     await connectToDatabase();
+    //await addSampleData();
     await closeDatabaseConnection();
 })();

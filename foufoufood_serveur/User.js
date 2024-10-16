@@ -8,7 +8,12 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     phone: String,
     address: String,
-    isAdmin: { type: Boolean, default: false },
+    role: {
+        type: String,
+        enum: ['utilisateur', 'livreur', 'restaurant', 'admin'],
+        required: true,
+        default: 'utilisateur'
+    },
     orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
 });
 

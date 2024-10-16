@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
 });
 
 // Route des utilisateurs
-app.get('/users', authenticateToken, async (req, res) => {
+app.get('/users', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Utilisateurs</h1><br> ${JSON.stringify(simulator.users)}`);
   try {
     const users = await User.find();
@@ -43,7 +43,7 @@ app.get('/users', authenticateToken, async (req, res) => {
 });
 
 // Créer un nouvel utilisateur
-app.post('/users', authenticateToken, async (req, res) => {
+app.post('/users', async (req, res) => {
   const newUser = new User(req.body);
   try {
     const savedUser = await newUser.save();
@@ -55,7 +55,7 @@ app.post('/users', authenticateToken, async (req, res) => {
 });
 
 // Route des restaurants
-app.get('/restaurants', authenticateToken, async (req, res) => {
+app.get('/restaurants', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
   //res.send(`<h1>Restaurants</h1><br> ${JSON.stringify(simulator.restaurants)}`);
   try {
     const restaurants = await Restaurant.find();
@@ -67,7 +67,7 @@ app.get('/restaurants', authenticateToken, async (req, res) => {
 });
 
 // Route des livreurs
-app.get('/deliverypartners', authenticateToken, async (req, res) => {
+app.get('/deliverypartners', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Livreurs</h1><br> ${JSON.stringify(simulator.deliveryPartners)}`);
   try {
     const deliverypartners = await DeliveryPartner.find();
@@ -79,7 +79,7 @@ app.get('/deliverypartners', authenticateToken, async (req, res) => {
 });
 
 // Route des commandes
-app.get('/orders', authenticateToken, async (req, res) => {
+app.get('/orders', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Commandes</h1><br> ${JSON.stringify(simulator.orders)}`);
   try {
     const orders = await Order.find();
@@ -106,7 +106,7 @@ app.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '1d' });
+    const token = jwt.sign({ userId: user._id, role: user.role }, secret, { expiresIn: '1d' });
     res.status(200).json({ token });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -134,6 +134,17 @@ function authenticateToken(req, res, next) {
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
+}
+
+// Middleware pour vérifier si l'utilisateur possède l'un des rôles autorisés
+function authorizeRoles(...roles) {
+  return (req, res, next) => {
+    // Autorise si l'utilisateur est un admin ou a un rôle autorisé
+    if (req.user.role === 'admin' || roles.includes(req.user.role)) {
+      return next();
+    }
+    res.status(403).json({ message: 'Accès refusé : rôle non autorisé.' });
+  };
 }
 
 app.listen(3000, () => {
