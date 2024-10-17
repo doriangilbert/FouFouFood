@@ -109,6 +109,60 @@ app.get('/restaurants', authenticateToken, authorizeRoles('utilisateur', 'livreu
   }
 });
 
+// Consulter les détails d'un restaurant
+app.get('/restaurants/:id', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const restaurant = await Restaurant.findById(req.params.id);
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+    res.json(restaurant);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Créer un nouveau restaurant
+app.post('/restaurants', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  const newRestaurant = new Restaurant(req.body);
+  try {
+    const savedRestaurant = await newRestaurant.save();
+    res.json(savedRestaurant);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Mettre à jour un restaurant
+app.put('/restaurants/:id', authenticateToken, authorizeRoles('restaurant', 'admin'), async (req, res) => {
+  try {
+    const updatedRestaurant = await Restaurant.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedRestaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+    res.json(updatedRestaurant);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Supprimer un restaurant
+app.delete('/restaurants/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deletedRestaurant = await Restaurant.findByIdAndDelete(req.params.id);
+    if (!deletedRestaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
+    }
+    res.json({ message: 'Restaurant deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 // Route des livreurs
 app.get('/deliverypartners', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Livreurs</h1><br> ${JSON.stringify(simulator.deliveryPartners)}`);
