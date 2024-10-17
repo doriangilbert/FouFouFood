@@ -42,8 +42,23 @@ app.get('/users', authenticateToken, authorizeRoles('admin'), async (req, res) =
   }
 });
 
+// Consulter les détails d'un utilisateur
+app.get('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+
 // Créer un nouvel utilisateur
-app.post('/users', async (req, res) => {
+app.post('/users', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   const newUser = new User(req.body);
   try {
     const savedUser = await newUser.save();
@@ -51,6 +66,34 @@ app.post('/users', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(400).json({ message: err.message });
+  }
+});
+
+// Mettre à jour un utilisateur
+app.put('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const updatedUser = await User.findOneAndUpdate({ email: req.params.email }, req.body, { new: true, runValidators: true });
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(updatedUser);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Supprimer un utilisateur
+app.delete('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deletedUser = await User.findOneAndDelete({ email: req.params.email });
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 

@@ -30,6 +30,19 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
+// Middleware pour hacher le mot de passe avant de mettre à jour
+userSchema.pre('findOneAndUpdate', async function(next) {
+    const update = this.getUpdate();
+    if (update.password) {
+        try {
+            update.password = await bcrypt.hash(update.password, 10);
+        } catch (err) {
+            return next(err);
+        }
+    }
+    next();
+});
+
 // Création du modèle pour les utilisateurs
 const User = mongoose.model('User', userSchema);
 
