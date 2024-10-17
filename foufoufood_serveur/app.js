@@ -43,9 +43,9 @@ app.get('/users', authenticateToken, authorizeRoles('admin'), async (req, res) =
 });
 
 // Consulter les détails d'un utilisateur
-app.get('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+app.get('/users/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.params.email });
+    const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -70,9 +70,9 @@ app.post('/users', authenticateToken, authorizeRoles('admin'), async (req, res) 
 });
 
 // Mettre à jour un utilisateur
-app.put('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+app.put('/users/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
-    const updatedUser = await User.findOneAndUpdate({ email: req.params.email }, req.body, { new: true, runValidators: true });
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -84,9 +84,9 @@ app.put('/users/:email', authenticateToken, authorizeRoles('admin'), async (req,
 });
 
 // Supprimer un utilisateur
-app.delete('/users/:email', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+app.delete('/users/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {
-    const deletedUser = await User.findOneAndDelete({ email: req.params.email });
+    const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -163,6 +163,75 @@ app.delete('/restaurants/:id', authenticateToken, authorizeRoles('admin'), async
   }
 });
 
+// Récupérer tous les éléments de menu d'un restaurant
+app.get('/restaurants/:restaurantId/menuitems', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const menuItems = await MenuItem.find({ restaurant: req.params.restaurantId });
+    res.json(menuItems);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Récupérer un élément de menu d'un restaurant
+app.get('/restaurants/:restaurantId/menuitems/:id', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const menuItem = await MenuItem.findOne({ _id: req.params.id, restaurant: req.params.restaurantId });
+    if (!menuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+    res.json(menuItem);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Créer un nouvel élément de menu pour un restaurant
+app.post('/restaurants/:restaurantId/menuitems', authenticateToken, authorizeRoles('restaurant', 'admin'), async (req, res) => {
+  const newMenuItem = new MenuItem({ ...req.body, restaurant: req.params.restaurantId });
+  try {
+    const savedMenuItem = await newMenuItem.save();
+    res.json(savedMenuItem);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Mettre à jour un élément de menu d'un restaurant
+app.put('/restaurants/:restaurantId/menuitems/:id', authenticateToken, authorizeRoles('restaurant', 'admin'), async (req, res) => {
+  try {
+    const updatedMenuItem = await MenuItem.findOneAndUpdate(
+      { _id: req.params.id, restaurant: req.params.restaurantId },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedMenuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+    res.json(updatedMenuItem);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Supprimer un élément de menu d'un restaurant
+app.delete('/restaurants/:restaurantId/menuitems/:id', authenticateToken, authorizeRoles('restaurant', 'admin'), async (req, res) => {
+  try {
+    const deletedMenuItem = await MenuItem.findOneAndDelete({ _id: req.params.id, restaurant: req.params.restaurantId });
+    if (!deletedMenuItem) {
+      return res.status(404).json({ message: 'Menu item not found' });
+    }
+    res.json({ message: 'Menu item deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 // Route des livreurs
 app.get('/deliverypartners', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Livreurs</h1><br> ${JSON.stringify(simulator.deliveryPartners)}`);
@@ -175,12 +244,131 @@ app.get('/deliverypartners', authenticateToken, authorizeRoles('admin'), async (
   }
 });
 
+// Obtenir les détails d'un livreur
+app.get('/deliverypartners/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deliveryPartner = await DeliveryPartner.findById(req.params.id);
+    if (!deliveryPartner) {
+      return res.status(404).json({ message: 'Delivery Partner not found' });
+    }
+    res.json(deliveryPartner);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Créer un nouveau livreur
+app.post('/deliverypartners', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  const newDeliveryPartner = new DeliveryPartner(req.body);
+  try {
+    const savedDeliveryPartner = await newDeliveryPartner.save();
+    res.json(savedDeliveryPartner);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Mettre à jour un livreur
+app.put('/deliverypartners/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const updatedDeliveryPartner = await DeliveryPartner.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedDeliveryPartner) {
+      return res.status(404).json({ message: 'Delivery Partner not found' });
+    }
+    res.json(updatedDeliveryPartner);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Supprimer un livreur
+app.delete('/deliverypartners/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deletedDeliveryPartner = await DeliveryPartner.findByIdAndDelete(req.params.id);
+    if (!deletedDeliveryPartner) {
+      return res.status(404).json({ message: 'Delivery Partner not found' });
+    }
+    res.json({ message: 'Delivery Partner deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 // Route des commandes
 app.get('/orders', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   //res.send(`<h1>Commandes</h1><br> ${JSON.stringify(simulator.orders)}`);
   try {
     const orders = await Order.find();
     res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Route des commandes
+app.get('/orders', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.json(orders);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Consulter les détails d'une commande
+app.get('/orders/:id', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(order);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Créer une nouvelle commande
+app.post('/orders', authenticateToken, authorizeRoles('utilisateur', 'admin'), async (req, res) => {
+  const newOrder = new Order(req.body);
+  try {
+    const savedOrder = await newOrder.save();
+    res.json(savedOrder);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Mettre à jour une commande
+app.put('/orders/:id', authenticateToken, authorizeRoles('livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Supprimer une commande
+app.delete('/orders/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  try {
+    const deletedOrder = await Order.findByIdAndDelete(req.params.id);
+    if (!deletedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json({ message: 'Order deleted successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server Error' });
