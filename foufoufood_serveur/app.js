@@ -337,13 +337,41 @@ app.get('/orders/:id', authenticateToken, authorizeRoles('utilisateur', 'livreur
 
 // Créer une nouvelle commande
 app.post('/orders', authenticateToken, authorizeRoles('utilisateur', 'admin'), async (req, res) => {
-  const newOrder = new Order(req.body);
+  const { userId, restaurantId, items, deliveryAddress } = req.body;
+
+  // Valider les données de la commande
+  if (!userId || !restaurantId || !items || items.length === 0 || !deliveryAddress) {
+    return res.status(400).json({ message: 'Tous les champs sont requis' });
+  }
+
   try {
+    // Calculer le prix total de la commande
+    let totalPrice = 0;
+    for (const item of items) {
+      const menuItem = await MenuItem.findById(item.item);
+      if (!menuItem) {
+        return res.status(404).json({ message: `MenuItem avec l'ID ${item.item} non trouvé` });
+      }
+      totalPrice += menuItem.price * item.quantity;
+    }
+
+    // Créer et enregistrer la commande
+    const newOrder = new Order({
+      userId,
+      restaurantId,
+      items,
+      totalPrice,
+      status: 'En attente',
+      deliveryAddress,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
     const savedOrder = await newOrder.save();
-    res.json(savedOrder);
+    res.status(201).json(savedOrder);
   } catch (err) {
     console.error(err);
-    res.status(400).json({ message: err.message });
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 
@@ -369,6 +397,51 @@ app.delete('/orders/:id', authenticateToken, authorizeRoles('admin'), async (req
       return res.status(404).json({ message: 'Order not found' });
     }
     res.json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Rechercher des restaurants
+app.get('/search/restaurants', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const { name, cuisine } = req.body;
+    const query = {};
+
+    if (name) {
+      query.name = { $regex: name, $options: 'i' };
+    }
+    if (cuisine) {
+      query.cuisine = { $regex: cuisine, $options: 'i' };
+    }
+
+    const restaurants = await Restaurant.find(query);
+    res.json(restaurants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Rechercher des éléments de menu
+app.get('/search/menuitems', authenticateToken, authorizeRoles('utilisateur', 'livreur', 'restaurant', 'admin'), async (req, res) => {
+  try {
+    const { name, category, restaurantId } = req.body;
+    const query = {};
+
+    if (name) {
+      query.name = { $regex: name, $options: 'i' };
+    }
+    if (category) {
+      query.category = { $regex: category, $options: 'i' };
+    }
+    if (restaurantId) {
+      query.restaurantId = restaurantId; // Exact match
+    }
+
+    const menuItems = await MenuItem.find(query);
+    res.json(menuItems);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server Error' });
