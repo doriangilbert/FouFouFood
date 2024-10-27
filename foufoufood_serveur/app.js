@@ -389,6 +389,68 @@ app.put('/orders/:id', authenticateToken, authorizeRoles('livreur', 'restaurant'
   }
 });
 
+// Assigner un livreur à une commande
+app.put('/orders/:id/assign', authenticateToken, authorizeRoles('admin'), async (req, res) => {
+  const { deliveryPartnerId } = req.body;
+
+  // Valider les données
+  if (!deliveryPartnerId) {
+    return res.status(400).json({ message: 'Delivery partner ID is required' });
+  }
+
+  try {
+    // Vérifier si la commande existe
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Vérifier si le livreur existe
+    const deliveryPartner = await DeliveryPartner.findById(deliveryPartnerId);
+    if (!deliveryPartner) {
+      return res.status(404).json({ message: 'Delivery partner not found' });
+    }
+
+    // Assigner le livreur à la commande
+    order.deliveryPartnerId = deliveryPartnerId;
+    order.updatedAt = new Date();
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Changer le statut d'une commande
+app.put('/orders/:id/status', authenticateToken, authorizeRoles('livreur', 'restaurant', 'admin'), async (req, res) => {
+  const { status } = req.body;
+
+  // Valider le nouveau statut
+  if (!status) {
+    return res.status(400).json({ message: 'Le statut est requis' });
+  }
+
+  try {
+    // Vérifier si la commande existe
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Commande non trouvée' });
+    }
+
+    // Mettre à jour le statut de la commande
+    order.status = status;
+    order.updatedAt = new Date();
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
 // Supprimer une commande
 app.delete('/orders/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   try {

@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
     totalPrice: { type: Number, required: true },
     status: { type: String, required: true },
     deliveryAddress: { type: String, required: true },
-    deliveryPartner: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+    deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });
