@@ -1,4 +1,4 @@
-package com.example.foufoufood
+package com.example.foufoufood.model
 
 class Restaurant(
     val id: Int,

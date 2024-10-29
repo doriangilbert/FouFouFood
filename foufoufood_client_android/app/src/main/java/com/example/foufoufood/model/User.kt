@@ -1,4 +1,4 @@
-package com.example.foufoufood
+package com.example.foufoufood.model
 
 data class User(
     val id: Int,

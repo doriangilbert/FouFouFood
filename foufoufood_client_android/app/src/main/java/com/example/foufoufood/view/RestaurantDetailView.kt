@@ -1,4 +1,4 @@
-package com.example.foufoufood
+package com.example.foufoufood.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.foufoufood.model.Restaurant
+import com.example.foufoufood.viewmodel.RestaurantViewModel
 
 class RestaurantDetailView : ComponentActivity() {
     private val viewModel: RestaurantViewModel by viewModels()

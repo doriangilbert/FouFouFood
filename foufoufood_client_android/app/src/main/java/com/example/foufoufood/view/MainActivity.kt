@@ -1,26 +1,29 @@
-package com.example.foufoufood
+package com.example.foufoufood.view
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 
-import android.content.Intent
-import androidx.activity.viewModels
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Divider
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.livedata.observeAsState
 
+
+class MainActivity : ComponentActivity() {
+    // Initialisation du ViewModel pour l'activité
+    private val eventRepository = EventRepository()
+    private val eventViewModel = EventViewModel(eventRepository)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            EventAppTheme {
+                MainScreen(eventViewModel)
+            }
+        }
+    }
+}
+
+/*
 class MainActivity : ComponentActivity() {
     private val restaurantViewModel: RestaurantViewModel by viewModels()
 
@@ -60,7 +63,7 @@ fun RestaurantItem(restaurant: Restaurant, onRestaurantClick: (Int) -> Unit) {
     ) {
         Text(text = restaurant.name, fontSize = 20.sp)
     }
-}
+}*/
 
 
 /*@Composable
