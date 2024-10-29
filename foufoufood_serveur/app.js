@@ -10,6 +10,8 @@ const DeliveryPartner = require('./DeliveryPartner');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Server } = require('socket.io');
+const http = require('http');
 
 app.use(express.json()); // Pour parser les corps de requêtes JSON
 
@@ -19,6 +21,11 @@ mongoose.connect(uri)
     .then(() => console.log('Connected to MongoDB'))
     .catch(err => console.error(err));
 
+// Créer le serveur HTTP
+const server = http.createServer(app);
+
+// Créer le serveur Socket.IO
+const io = new Server(server);
 /*
 simulator = new Simulator()
 simulator.startSimulation()
@@ -434,6 +441,9 @@ app.put('/orders/:id/status', authenticateToken, authorizeRoles('livreur', 'rest
 
     const updatedOrder = await order.save();
     res.json(updatedOrder);
+
+    // Notify the user about the status change
+    notifyUser(order.userId.toString(), { type: 'ORDER_STATUS_CHANGED', order: updatedOrder });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Erreur serveur' });
@@ -538,8 +548,8 @@ function authenticateToken(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, secret);
-    req.user = decoded; // Vous pouvez utiliser req.user dans la route pour accéder aux infos utilisateur
-    next(); // Continuer si le token est valide
+    req.user = decoded;
+    next();
   } catch (err) {
     return res.status(401).json({ error: 'Invalid token' });
   }
@@ -558,5 +568,45 @@ function authorizeRoles(...roles) {
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
+});
+
+const userSocketMap = new Map();
+
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('register', (userId) => {
+    console.log(`Registering user ID: ${userId} with socket ID: ${socket.id}`);
+    userSocketMap.set(userId, socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+    for (let [userId, socketId] of userSocketMap.entries()) {
+      if (socketId === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
+    }
+  });
+});
+
+function notifyUser(userId, data) {
+  const socketId = userSocketMap.get(userId);
+  if (socketId) {
+    console.log(`Sending notification to user ${userId} at socket ${socketId}`);
+    io.to(socketId).emit('notification', data);
+  } else {
+    console.log(`User ${userId} is not connected`);
+  }
+}
+
+server.listen(8080, () => {
+  console.log('Server listening on port 8080');
+});
+
+app.get('/notifications/:userId', (req, res) => {
+  const userId = req.params.userId;
+  res.sendFile(__dirname + '/index.html');
 });
 

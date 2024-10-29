@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Client Notifications FouFouFood</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const pathSegments = window.location.pathname.split('/');
+        const clientId = pathSegments[pathSegments.length - 1];
+
+        socket.on('connect', () => {
+            console.log('Connecté au serveur');
+            socket.emit('register', clientId);
+            document.getElementById('status').innerText = `Connecté en tant que client ID : ${clientId}`;
+        });
+
+        socket.on('notification', (data) => {
+            console.log('Notification reçue :', data);
+            alert(`Notification reçue : \nID de la commande : ${data.order._id}\nStatut : ${data.order.status}`);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Déconnecté du serveur');
+        });
+    </script>
+</head>
+<body>
+<h1>Client Notifications FouFouFood</h1>
+<p id="status"></p>
+</body>
+</html>
