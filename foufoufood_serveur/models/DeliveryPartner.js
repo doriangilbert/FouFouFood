@@ -11,18 +11,6 @@ const deliveryPartnerSchema = new mongoose.Schema({
     status: String
 });
 
-// Méthode pour assigner une commande à un livreur
-deliveryPartnerSchema.methods.assignOrder = async function(orderId) {
-    const Order = mongoose.model('Order');
-    const order = await Order.findById(orderId);
-    if (order) {
-        order.deliveryPartner = this._id;
-        order.status = 'En livraison';
-        order.updatedAt = new Date();
-        await order.save();
-    }
-};
-
 // Création du modèle pour les livreurs
 const DeliveryPartner = mongoose.model('DeliveryPartner', deliveryPartnerSchema);
 

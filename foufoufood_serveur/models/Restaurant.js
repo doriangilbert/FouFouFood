@@ -12,12 +12,6 @@ const restaurantSchema = new mongoose.Schema({
     reviews: [{ type: String }]
 });
 
-// Méthode pour ajouter un élément de menu à un restaurant
-restaurantSchema.methods.addMenuItem = function(menuItem) {
-    this.menu.push(menuItem);
-    return this.save();
-};
-
 // Création du modèle pour les restaurants
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
 

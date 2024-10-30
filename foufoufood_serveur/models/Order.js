@@ -6,7 +6,12 @@ const orderSchema = new mongoose.Schema({
     restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true },
     items: [{ item: { type: mongoose.Schema.Types.ObjectId, ref: 'MenuItem', required: true }, quantity: { type: Number, required: true } }],
     totalPrice: { type: Number, required: true },
-    status: { type: String, required: true },
+    status: {
+        type: String,
+        enum: ['En attente', 'Confirmée', 'En préparation', 'Prête pour livraison', 'En livraison', 'Livrée', 'Annulée'],
+        required: true,
+        default: 'En attente'
+    },
     deliveryAddress: { type: String, required: true },
     deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
     createdAt: { type: Date, default: Date.now },

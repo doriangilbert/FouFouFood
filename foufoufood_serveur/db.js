@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const User = require('./User');
-const Order = require('./Order');
-const Restaurant = require('./Restaurant');
-const MenuItem = require('./MenuItem');
-const DeliveryPartner = require('./DeliveryPartner');
+const User = require('./models/User');
+const Order = require('./models/Order');
+const Restaurant = require('./models/Restaurant');
+const MenuItem = require('./models/MenuItem');
+const DeliveryPartner = require('./models/DeliveryPartner');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 
 // URI pour la connexion à l'instance MongoDB locale
@@ -303,6 +303,6 @@ async function addSampleData() {
 // Exécution du script
 (async () => {
     await connectToDatabase();
-    //await addSampleData();
+    //await addSampleData(); // NOTE IMPORTANTE : Décommenter cette ligne et exécuter le fichier va vider entièrement la base de données et ajouter des données d'échantillon
     await closeDatabaseConnection();
 })();
