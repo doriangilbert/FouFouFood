@@ -13,7 +13,7 @@ const orderSchema = new mongoose.Schema({
         default: 'En attente'
     },
     deliveryAddress: { type: String, required: true },
-    deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'DeliveryPartner' },
+    deliveryPartnerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }
 });

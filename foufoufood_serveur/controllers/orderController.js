@@ -1,6 +1,6 @@
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
-const DeliveryPartner = require('../models/DeliveryPartner');
+const User = require('../models/User');
 const {notifyUser} = require('../utils/socketUtils');
 
 exports.getAllOrders = async (req, res) => {
@@ -107,7 +107,7 @@ exports.assignDeliveryPartner = async (req, res) => {
         }
 
         // Vérifier si le livreur existe
-        const deliveryPartner = await DeliveryPartner.findById(deliveryPartnerId);
+        const deliveryPartner = await User.findOne({_id: deliveryPartnerId, role: 'livreur'});
         if (!deliveryPartner) {
             return res.status(404).json({message: 'Livreur non trouvé'});
         }

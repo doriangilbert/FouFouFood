@@ -51,11 +51,12 @@ app.get('/', (req, res) => {
             <p>Vous pouvez accéder à l'API en utilisant l'adresse suivante suivie de la route souhaitée :</p>
             <strong>http://localhost:3000/</strong>
             <h2>Notifications</h2>
-            <p>Vous pouvez accéder aux notifications en utilisant l'adresse suivante suivie de l'identifant de l'utilisateur souhaité :</p>
+            <p>Vous pouvez accéder aux notifications en utilisant l'adresse suivante suivie de l'identifiant de l'utilisateur souhaité :</p>
             <strong> http://localhost:8080/notifications</strong>
             <h2>Note importante</h2>
             <p>Hormis les deux routes précédentes et la route de connexion, toutes les autres routes doivent être accédées de manière authentifiée avec un token généré suite à la connexion par la route suivante :</p>
-            <strong>POST http://localhost:3000/users/login</strong
+            <strong>POST http://localhost:3000/users/login</strong>
+            <p>Un compte administrateur est à disposition avec l'email "admin@gmail.com" et le mot de passe "admin"</p>
         </body>
     </html>
 `);

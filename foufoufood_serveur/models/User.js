@@ -14,7 +14,13 @@ const userSchema = new mongoose.Schema({
         required: true,
         default: 'utilisateur'
     },
-    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }]
+    orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
+    vehicle: String,
+    location: {
+        lat: Number,
+        lng: Number
+    },
+    status: String
 });
 
 // Middleware pour hacher le mot de passe avant de l'enregistrer

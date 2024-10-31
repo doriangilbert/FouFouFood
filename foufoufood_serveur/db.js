@@ -1,9 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./models/User');
-const Order = require('./models/Order');
 const Restaurant = require('./models/Restaurant');
 const MenuItem = require('./models/MenuItem');
-const DeliveryPartner = require('./models/DeliveryPartner');
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
 
 // URI pour la connexion à l'instance MongoDB locale
@@ -38,10 +36,15 @@ async function addSampleData() {
         await mongoose.connection.dropCollection('orders');
         await mongoose.connection.dropCollection('restaurants');
         await mongoose.connection.dropCollection('menuitems');
-        await mongoose.connection.dropCollection('deliverypartners');
 
         // Création des utilisateurs
         const users = [
+            new User({
+                name: 'admin',
+                email: 'admin@gmail.com',
+                password: 'admin',
+                role: 'admin',
+            }),
             new User({
                 //_id: '301',
                 name: 'Ménélik Ado',
@@ -79,7 +82,7 @@ async function addSampleData() {
                 password: 'password012',
                 phone: '123 496 7890',
                 address: '1011 Douala Avenue',
-                role: 'livreur',
+                role: 'utilisateur',
                 orders: []
             }),
             new User({
@@ -259,30 +262,42 @@ async function addSampleData() {
 
         // Création des livreurs
         const deliveryPartners = [
-            new DeliveryPartner({
+            new User({
                 //_id: '401',
                 name: 'Bobby Ali',
+                email: 'bobbyali@example.com',
+                password: 'password123',
+                role: 'livreur',
                 vehicle: 'Vélo',
                 location: { lat: 45.5, lng: -73.6 },
                 status: 'Disponible'
             }),
-            new DeliveryPartner({
+            new User({
                 //_id: '402',
                 name: 'Alice Zhang',
+                email: 'alicezhang@example.com',
+                password: 'password123',
+                role: 'livreur',
                 vehicle: 'Moto',
                 location: { lat: 45.4, lng: -73.7 },
                 status: 'Disponible'
             }),
-            new DeliveryPartner({
+            new User({
                 //_id: '403',
                 name: 'Charlie Cooper',
+                email: 'charliecooper@example.com',
+                password: 'password123',
+                role: 'livreur',
                 vehicle: 'Voiture',
                 location: { lat: 45.6, lng: -73.5 },
                 status: 'Disponible'
             }),
-            new DeliveryPartner({
+            new User({
                 //_id: '404',
                 name: 'David Bowie',
+                email: 'davidbowie@example.com',
+                password: 'password123',
+                role: 'livreur',
                 vehicle: 'Vélo',
                 location: { lat: 45.5, lng: -73.8 },
                 status: 'Disponible'

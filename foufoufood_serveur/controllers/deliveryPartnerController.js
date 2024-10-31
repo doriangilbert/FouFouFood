@@ -1,8 +1,8 @@
-const DeliveryPartner = require('../models/DeliveryPartner');
+const User = require('../models/User');
 
 exports.getAllDeliveryPartners = async (req, res) => {
     try {
-        const deliveryPartners = await DeliveryPartner.find();
+        const deliveryPartners = await User.find({role: 'livreur'});
         res.json(deliveryPartners);
     } catch (err) {
         console.error(err);
@@ -12,7 +12,7 @@ exports.getAllDeliveryPartners = async (req, res) => {
 
 exports.getDeliveryPartnerById = async (req, res) => {
     try {
-        const deliveryPartner = await DeliveryPartner.findById(req.params.id);
+        const deliveryPartner = await User.findOne({_id: req.params.id, role: 'livreur'});
         if (!deliveryPartner) {
             return res.status(404).json({message: 'Livreur non trouvé'});
         }
@@ -24,7 +24,7 @@ exports.getDeliveryPartnerById = async (req, res) => {
 };
 
 exports.createDeliveryPartner = async (req, res) => {
-    const newDeliveryPartner = new DeliveryPartner(req.body);
+    const newDeliveryPartner = new User({...req.body, role: 'livreur'});
     try {
         const savedDeliveryPartner = await newDeliveryPartner.save();
         res.json(savedDeliveryPartner);
@@ -36,10 +36,11 @@ exports.createDeliveryPartner = async (req, res) => {
 
 exports.updateDeliveryPartner = async (req, res) => {
     try {
-        const updatedDeliveryPartner = await DeliveryPartner.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
+        const updatedDeliveryPartner = await User.findOneAndUpdate(
+            {_id: req.params.id, role: 'livreur'},
+            req.body,
+            {new: true, runValidators: true}
+        );
         if (!updatedDeliveryPartner) {
             return res.status(404).json({message: 'Livreur non trouvé'});
         }
@@ -52,7 +53,7 @@ exports.updateDeliveryPartner = async (req, res) => {
 
 exports.deleteDeliveryPartner = async (req, res) => {
     try {
-        const deletedDeliveryPartner = await DeliveryPartner.findByIdAndDelete(req.params.id);
+        const deletedDeliveryPartner = await User.findOneAndDelete({_id: req.params.id, role: 'livreur'});
         if (!deletedDeliveryPartner) {
             return res.status(404).json({message: 'Livreur non trouvé'});
         }
