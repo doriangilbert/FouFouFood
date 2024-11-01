@@ -1,6 +1,7 @@
 const Order = require('../models/Order');
 const MenuItem = require('../models/MenuItem');
 const User = require('../models/User');
+const Restaurant = require('../models/Restaurant');
 const {notifyUser} = require('../utils/socketUtils');
 
 exports.getAllOrders = async (req, res) => {
@@ -118,6 +119,11 @@ exports.assignDeliveryPartner = async (req, res) => {
 
         const updatedOrder = await order.save();
         res.json(updatedOrder);
+
+        // Notifier le livreur de l'assignation de la commande
+        const io = req.app.get('io');
+        const orderRestaurant = await Restaurant.findById(order.restaurantId);
+        notifyUser(io, order.deliveryPartnerId.toString(), {type: 'ORDER_ASSIGNED', order: updatedOrder, restaurant: orderRestaurant});
     } catch (err) {
         console.error(err);
         res.status(500).json({error: err.message});
@@ -148,7 +154,8 @@ exports.changeOrderStatus = async (req, res) => {
 
         // Notifier l'utilisateur du changement de statut de la commande
         const io = req.app.get('io');
-        notifyUser(io, order.userId.toString(), {type: 'ORDER_STATUS_CHANGED', order: updatedOrder});
+        const orderRestaurant = await Restaurant.findById(order.restaurantId);
+        notifyUser(io, order.userId.toString(), {type: 'ORDER_STATUS_CHANGED', order: updatedOrder, restaurant: orderRestaurant});
     } catch (err) {
         console.error(err);
         res.status(500).json({error: err.message});

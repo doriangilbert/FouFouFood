@@ -56,7 +56,8 @@ app.get('/', (req, res) => {
             <h2>Note importante</h2>
             <p>Hormis les deux routes précédentes et la route de connexion, toutes les autres routes doivent être accédées de manière authentifiée avec un token généré suite à la connexion par la route suivante :</p>
             <strong>POST http://localhost:3000/users/login</strong>
-            <p>Un compte administrateur est à disposition avec l'email "admin@gmail.com" et le mot de passe "admin"</p>
+            <p>Un compte administrateur est à disposition avec l'email "admin@gmail.com" et le mot de passe "admin".</p>
+            <p>Se connecter avec ce compte permet de récupérer un token d'authentification permettant d'effectuer d'autres requêtes comme la création d'un compte utilisateur ou livreur.</p>
         </body>
     </html>
 `);
