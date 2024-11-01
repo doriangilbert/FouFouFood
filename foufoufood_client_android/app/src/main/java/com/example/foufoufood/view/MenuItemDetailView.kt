@@ -1,23 +1,26 @@
 package com.example.foufoufood.view
 
-import androidx.compose.foundation.clickable
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +32,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,25 +41,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.foufoufood.model.MenuItem
-import com.example.foufoufood.viewmodel.RestaurantDetailViewModel
+import com.android.volley.toolbox.ImageRequest
+import com.example.foufoufood.viewmodel.MenuItemDetailViewModel
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RestaurantDetailView(viewModel: RestaurantDetailViewModel, navController: NavController, restaurantId: String) {
+fun MenuItemDetailView(viewModel: MenuItemDetailViewModel, navController: NavController, restaurantId: String, menuItemId: String) {
+    viewModel.fetchMenuItem(restaurantId, menuItemId)
+    val menuItem by viewModel.menuItem.collectAsState()
 
-    viewModel.fetchRestaurant(restaurantId)
+    var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
-    val restaurant by viewModel.restaurant.collectAsState()
-
-    viewModel.fetchMenuItems(restaurantId)
-
-    val menuItems by viewModel.menuItems.collectAsState()
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+    LaunchedEffect(menuItem?.image) {
+        menuItem?.image?.let { path ->
+            val file = File(path)
+            if (file.exists()) {
+                bitmap = BitmapFactory.decodeFile(path)
+            }
+        }
+    }
 
     Scaffold(
         //Pour la barre de navigation en haut
@@ -103,32 +112,6 @@ fun RestaurantDetailView(viewModel: RestaurantDetailViewModel, navController: Na
                             )
                         }
 
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                placeholder = { Text("Rechercher un menu") },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(end = 8.dp),
-                                colors = TextFieldDefaults.textFieldColors(
-                                    containerColor = Color.White
-                                )
-                            )
-                            IconButton(onClick = { /* Logique de recherche pour les menus */ }) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = "Rechercher",
-                                    tint = Color.Black,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                        }
-
                         IconButton(onClick = { navController.navigate("Login") }) {
                             Icon(
                                 Icons.Default.Person,
@@ -156,66 +139,34 @@ fun RestaurantDetailView(viewModel: RestaurantDetailViewModel, navController: Na
                 contentAlignment = Alignment.Center
             ) {
                 Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    restaurant?.let {
+                    bitmap?.let {
+                        Image(
+                            bitmap = it.asImageBitmap(),
+                            contentDescription = "Image de ${menuItem?.name}",
+                            modifier = Modifier
+                                .sizeIn(maxWidth = 200.dp, maxHeight = 200.dp)
+                                .aspectRatio(1f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    menuItem?.let {
                         Text(
                             text = it.name,
                             style = MaterialTheme.typography.titleLarge,
                         )
-                    }
-                    Text(
-                        text = "Cuisine: ${restaurant?.cuisine}",
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
+                        Text(
+                            text = "${menuItem?.price}",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            text = "${menuItem?.description}",
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        }
                 }
             }
-
-            MenuList(menuItems, navController)
-        }
-    }
-}
-
-@Composable
-fun MenuList(menus: List<MenuItem>, navController: NavController) {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally // Centre les éléments
-    ) {
-        items(menus) { menuItem ->
-            MenuObjet(menuItem) {
-                navController.navigate("RestaurantDetailView/${menuItem.restaurantId}/MenuItemDetailView/${menuItem.id}")
-            }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-        }
-    }
-}
-
-@Composable
-fun MenuObjet(menuItem: MenuItem, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 8.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = menuItem.name,
-                style = MaterialTheme.typography.titleLarge,
-                color = Color(0xFF4CAF50),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "${menuItem.price}$",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = menuItem.description,
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
-            )
+            //Mettre les éléments à afficher ici
         }
     }
 }

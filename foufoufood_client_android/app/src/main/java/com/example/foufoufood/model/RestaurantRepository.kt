@@ -22,7 +22,11 @@ class RestaurantRepository {
         api.getAllMenuItems("Bearer $token", restaurantId)
     }
 
-    /*suspend fun getRestaurantByName(restaurantName: String): Restaurant = withContext(Dispatchers.IO) {
+    suspend fun searchRestaurants(restaurantName: String): Restaurant = withContext(Dispatchers.IO) {
         api.getRestaurantByName("Bearer $token", restaurantName)
+    }
+
+    /*suspend fun searchMenuItems(menuItemName: String): MenuItem = withContext(Dispatchers.IO) {
+        api.getMenuItem("Bearer $token", menuItemName)
     }*/
 }
