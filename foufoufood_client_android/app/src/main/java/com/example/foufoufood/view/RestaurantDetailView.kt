@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -72,7 +75,7 @@ fun RestaurantDetailView(viewModel: RestaurantDetailViewModel, navController: Na
                     )
                 },
                 actions = {
-                    IconButton(onClick = { /* Action pour le panier */ }) {
+                    IconButton(onClick = { navController.navigate("CartView") }) {
                         Icon(
                             Icons.Default.ShoppingCart,
                             contentDescription = "Panier",
@@ -169,19 +172,19 @@ fun RestaurantDetailView(viewModel: RestaurantDetailViewModel, navController: Na
                 }
             }
 
-            MenuList(menuItems, navController)
+            MenuList(menuItems, navController, viewModel::addToCart)
         }
     }
 }
 
 @Composable
-fun MenuList(menus: List<MenuItem>, navController: NavController) {
+fun MenuList(menus: List<MenuItem>, navController: NavController, addToCart: (MenuItem, Int) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally // Centre les éléments
     ) {
         items(menus) { menuItem ->
-            MenuObjet(menuItem) {
+            MenuObjet(menuItem, addToCart) {
                 navController.navigate("RestaurantDetailView/${menuItem.restaurantId}/MenuItemDetailView/${menuItem.id}")
             }
             Divider(modifier = Modifier.padding(vertical = 8.dp))
@@ -190,32 +193,51 @@ fun MenuList(menus: List<MenuItem>, navController: NavController) {
 }
 
 @Composable
-fun MenuObjet(menuItem: MenuItem, onClick: () -> Unit) {
-    Box(
+fun MenuObjet(menuItem: MenuItem, addToCart: (MenuItem, Int) -> Unit, onClick: () -> Unit) {
+    var quantity by remember { mutableStateOf(1) }
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 8.dp)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.Center
+            .padding(vertical = 8.dp, horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = menuItem.name,
                 style = MaterialTheme.typography.titleLarge,
                 color = Color(0xFF4CAF50),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
             Text(
                 text = "${menuItem.price}$",
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
             Text(
                 text = menuItem.description,
                 style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Start
             )
+        }
+        Column(
+            horizontalAlignment = Alignment.End
+        ) {
+            TextField(
+                value = quantity.toString(),
+                onValueChange = { newValue ->
+                    quantity = newValue.toIntOrNull() ?: 1
+                },
+                modifier = Modifier.width(50.dp),
+                singleLine = true
+            )
+            Button(onClick = { addToCart(menuItem, quantity) }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))) {
+                Text("Ajouter")
+            }
         }
     }
 }

@@ -82,7 +82,7 @@ fun MainScreen(viewModel: RestaurantViewModel, navController: NavController) {
                     )
                 },
                 actions = {
-                    IconButton(onClick = { /* Action pour le panier */ }) {
+                    IconButton(onClick = { navController.navigate("CartView") }) {
                         Icon(
                             Icons.Default.ShoppingCart,
                             contentDescription = "Panier",

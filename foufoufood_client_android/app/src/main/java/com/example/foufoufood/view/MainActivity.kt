@@ -57,6 +57,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
+
+                    composable("CartView") {
+                        CartView(viewModel = restaurantDetailViewModel, navController = navController)
+                    }
                     /*composable("Login") {
                         LoginScreen(navController)
                     }*/
