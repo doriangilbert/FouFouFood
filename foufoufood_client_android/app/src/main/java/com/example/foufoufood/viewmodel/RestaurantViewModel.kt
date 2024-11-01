@@ -1,31 +1,25 @@
 package com.example.foufoufood.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.foufoufood.RestaurantRepository
+import com.example.foufoufood.model.RestaurantRepository
 import com.example.foufoufood.model.Restaurant
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class RestaurantViewModel(private val repository: RestaurantRepository) : ViewModel() {
-    private val _events = MutableStateFlow<List<Restaurant>>(emptyList())
-    val events = _events.asStateFlow()
+    private val _restaurants = MutableStateFlow<List<Restaurant>>(emptyList())
+    val restaurants = _restaurants.asStateFlow()
 
     init {
-        fetchEvents()
+        fetchRestaurants()
     }
 
-    private fun fetchEvents() {
+    private fun fetchRestaurants() {
         viewModelScope.launch {
-            _events.value = repository.getAllEvents()
-        }
-    }
-
-    fun addEvent(event: Event) {
-        viewModelScope.launch {
-            repository.createEvent(event)
-            fetchEvents()  // Rafraîchir la liste
+            _restaurants.value = repository.getAllRestaurants()
         }
     }
 }

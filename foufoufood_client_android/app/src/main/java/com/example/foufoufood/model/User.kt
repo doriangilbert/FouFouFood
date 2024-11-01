@@ -1,12 +1,14 @@
 package com.example.foufoufood.model
 
+import com.google.gson.annotations.SerializedName
+
 data class User(
-    val id: Int,
+    @SerializedName("_id") val id: String,
     val name: String,
     val email: String,
     var password: String,
     var phone: String,
     var address: String,
     var isAdmin: Boolean,
-    val orders: List<Int>
+    val orders: List<String>
 )

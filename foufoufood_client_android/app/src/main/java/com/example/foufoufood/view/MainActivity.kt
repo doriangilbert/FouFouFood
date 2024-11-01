@@ -1,113 +1,54 @@
 package com.example.foufoufood.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.foufoufood.model.RestaurantRepository
+import com.example.foufoufood.viewmodel.RestaurantViewModel
+import com.example.foufoufood.viewmodel.RestaurantDetailViewModel
 
 
 class MainActivity : ComponentActivity() {
     // Initialisation du ViewModel pour l'activité
-    private val eventRepository = EventRepository()
-    private val eventViewModel = EventViewModel(eventRepository)
+    private val restaurantRepository = RestaurantRepository()
+    private val restaurantViewModel = RestaurantViewModel(restaurantRepository)
+    private val restaurantDetailViewModel = RestaurantDetailViewModel(restaurantRepository)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            EventAppTheme {
-                MainScreen(eventViewModel)
-            }
-        }
-    }
-}
+            MaterialTheme {
+                val navController = rememberNavController()
 
-/*
-class MainActivity : ComponentActivity() {
-    private val restaurantViewModel: RestaurantViewModel by viewModels()
+                //On renseigne tous les chemins pour naviguer de page en page.
+                //On commence par aller à la page d'accueil, ou il y a la liste des restaurants.
+                NavHost(navController, startDestination = "MainScreen") {
+                    composable("MainScreen") {
+                        MainScreen(viewModel = restaurantViewModel, navController = navController)
+                    }
+                    composable("RestaurantDetailView/{restaurantId}") { backStackEntry ->
+                        val restaurantId = backStackEntry.arguments?.getString("restaurantId")
+                        if (restaurantId != null) {
+                            RestaurantDetailView(viewModel = restaurantDetailViewModel, navController = navController, restaurantId = restaurantId)
+                        } else {
+                            Log.d("RestaurantList", "Navigating to RestaurantDetailView with ID: $restaurantId")
+                        }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            RestaurantListScreen(restaurantViewModel) { restaurantId ->
-                val intent = Intent(this, RestaurantDetailView::class.java).apply {
-                    putExtra("restaurantId", restaurantId)
+                    /*composable("Login") {
+                        LoginScreen(navController)
+                    }*/
+                    // Ajoutez d'autres destinations si nécessaire
+                    }
                 }
-                startActivity(intent)
             }
         }
     }
 }
-
-@Composable
-fun RestaurantListScreen(viewModel: RestaurantViewModel, onRestaurantClick: (Int) -> Unit) {
-    val restaurants by viewModel.restaurants.observeAsState(emptyList())
-
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        items(restaurants) { restaurant ->
-            RestaurantItem(restaurant = restaurant, onRestaurantClick = onRestaurantClick)
-            Divider(modifier = Modifier.padding(horizontal = 16.dp))
-        }
-    }
-}
-
-@Composable
-fun RestaurantItem(restaurant: Restaurant, onRestaurantClick: (Int) -> Unit) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { onRestaurantClick(restaurant.id) }
-    ) {
-        Text(text = restaurant.name, fontSize = 20.sp)
-    }
-}*/
-
-
-/*@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello, World!",
-        fontSize = 24.sp,
-        color = Color.Blue,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun MyLayout() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(40.dp)
-            .background(Color.LightGray),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    )  {
-        Text(text = "Top", fontWeight = FontWeight.Bold, fontSize = 32.sp)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp)
-                .background(Color.White),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(text = "Left", fontSize = 24.sp)
-            Text(text = "Right", fontSize = 24.sp)
-        }
-        Text(text = "Bottom", fontSize = 32.sp, fontWeight = FontWeight.Light)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FouFouFoodTheme {
-        RestaurantList(restaurantViewModel)
-        //Greeting("Android")
-        //MyLayout()
-    }
-}*/

@@ -1,29 +1,33 @@
 package com.example.foufoufood
 
-import com.example.foufoufood.model.LoginRequest
-import com.example.foufoufood.model.Restaurant
-import com.example.foufoufood.model.User
+import com.example.foufoufood.model.*
 import retrofit2.http.*
 
 interface ApiService {
-    @GET("restaurants")
-    suspend fun getAllEvents(): List<Restaurant>
+    @GET("/restaurants")
+    suspend fun getAllRestaurants(@Header("Authorization") token: String): List<Restaurant>
 
     @GET("restaurants/{id}")
-    suspend fun getEventById(@Path("id") eventId: String): Restaurant
+    suspend fun getRestaurantById(@Header("Authorization") token: String, @Path("id") restaurantId: String): Restaurant
 
-    @POST("restaurants")
-    suspend fun createEvent(@Body event: Restaurant): Restaurant
+    @GET("restaurants/{name}")
+    suspend fun getRestaurantByName(@Header("Authorization") token: String, @Path("id") restaurantName: String): Restaurant
+
+    @GET("restaurants/{id}/menuItems")
+    suspend fun getAllMenuItems(@Header("Authorization") token: String, @Path("id") restaurantId: String): List<MenuItem>
+
+    /*@POST("restaurants")
+    suspend fun createRestaurant(@Body restaurant: Restaurant): Restaurant
 
     @PUT("restaurants/{id}")
-    suspend fun updateEvent(@Path("id") eventId: String, @Body event: Restaurant): Restaurant
+    suspend fun updateRestaurant(@Path("id") restaurantId: String, @Body restaurant: Restaurant): Restaurant
 
-    @DELETE("events/{id}")
-    suspend fun deleteEvent(@Path("id") eventId: String): Void
-
+    @DELETE("restaurants/{id}")
+    suspend fun deleteRestaurant(@Path("id") restaurantId: String): Void*/
+    /*
     @GET("users")
     suspend fun getAllUsers(): List<User>
 
     @POST("login")
-    suspend fun login(@Body loginRequest: LoginRequest): User
+    suspend fun login(@Body loginRequest: LoginRequest): User*/
 }
