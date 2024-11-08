@@ -75,7 +75,7 @@ fun MenuItemDetailView(viewModel: MenuItemDetailViewModel, navController: NavCon
                 ),
                 title = {
                     Text(
-                        text = "foufoufoo",
+                        text = "foufoufood",
                         color = Color.White,
                         style = MaterialTheme.typography.titleLarge
                     )
