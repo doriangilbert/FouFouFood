@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const mongoose = require("mongoose");
 require('dotenv').config(); // Charger les variables d'environnement depuis le fichier .env
@@ -15,6 +16,8 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const {setupSocketIO} = require('./utils/socketUtils');
 
 app.use(express.json()); // Pour parser les corps de requêtes JSON
+
+app.use(cors()); // Appliquer le middleware CORS
 
 // Connexion à MongoDB
 const uri = process.env.DB_URI; // Récupérer l'URI de la base de données depuis les variables d'environnement
