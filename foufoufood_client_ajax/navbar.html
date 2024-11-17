@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-success">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">FouFouFood</a>
+        <a class="navbar-brand" href="home.html">FouFouFood</a>
         <button class="btn btn-outline-light me-2" type="button" onclick="window.location.href='home.html'">
             <i class="fas fa-home"></i> Accueil
         </button>
@@ -8,18 +8,19 @@
             <div id="search-bar" style="display: none;">
                 <form class="d-flex">
                     <input class="form-control me-2" type="search" placeholder="Recherche" aria-label="Recherche">
-                    <button class="btn btn-outline-light" type="submit">Rechercher</button>
+                    <button class="btn btn-outline-light d-flex align-items-center" type="submit"><i class="fas fa-search me-2"></i> Rechercher</button>
                 </form>
             </div>
         </div>
         <div id="auth-buttons">
-            <button class="btn btn-outline-light me-2" type="button" onclick="window.location.href='login.html'">Se connecter</button>
-            <button class="btn btn-outline-light" type="button" onclick="window.location.href='register.html'">S'inscrire</button>
+            <button class="btn btn-outline-light me-2" type="button" onclick="window.location.href='login.html'"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+            <button class="btn btn-outline-light" type="button" onclick="window.location.href='register.html'"><i class="fas fa-user-plus"></i> S'inscrire</button>
         </div>
         <div id="user-buttons" style="display: none;">
-            <button class="btn btn-outline-light me-2" type="button">Panier</button>
-            <button class="btn btn-outline-light me-2" type="button">Profil</button>
-            <button class="btn btn-outline-light" type="button" onclick="import('./scripts/navbar.js').then(module => module.logout())">Se déconnecter</button>
+            <button class="btn btn-outline-light me-2" type="button" onclick="location.reload()"><i class="fas fa-sync-alt"></i> Rafraîchir</button>
+            <button class="btn btn-outline-light me-2" type="button"><i class="fas fa-shopping-cart"></i> Panier</button>
+            <button class="btn btn-outline-light me-2" type="button"><i class="fas fa-user"></i> Profil</button>
+            <button class="btn btn-outline-light" type="button" onclick="import('./scripts/navbar.js').then(module => module.logout())"><i class="fas fa-sign-out-alt"></i> Se déconnecter</button>
         </div>
     </div>
 </nav>
