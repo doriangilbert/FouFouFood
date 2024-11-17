@@ -1,18 +1,25 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-success">
     <div class="container-fluid">
         <a class="navbar-brand" href="#">FouFouFood</a>
-        <button class="btn btn-outline-light me-2" type="button">
+        <button class="btn btn-outline-light me-2" type="button" onclick="window.location.href='home.html'">
             <i class="fas fa-home"></i> Accueil
         </button>
         <div class="collapse navbar-collapse justify-content-center">
-            <form class="d-flex">
-                <input class="form-control me-2" type="search" placeholder="Recherche" aria-label="Recherche">
-                <button class="btn btn-outline-light" type="submit">Rechercher</button>
-            </form>
+            <div id="search-bar" style="display: none;">
+                <form class="d-flex">
+                    <input class="form-control me-2" type="search" placeholder="Recherche" aria-label="Recherche">
+                    <button class="btn btn-outline-light" type="submit">Rechercher</button>
+                </form>
+            </div>
         </div>
-        <div>
+        <div id="auth-buttons">
             <button class="btn btn-outline-light me-2" type="button" onclick="window.location.href='login.html'">Se connecter</button>
-            <button class="btn btn-outline-light" type="button">S'inscrire</button>
+            <button class="btn btn-outline-light" type="button" onclick="window.location.href='register.html'">S'inscrire</button>
+        </div>
+        <div id="user-buttons" style="display: none;">
+            <button class="btn btn-outline-light me-2" type="button">Panier</button>
+            <button class="btn btn-outline-light me-2" type="button">Profil</button>
+            <button class="btn btn-outline-light" type="button" onclick="import('./scripts/navbar.js').then(module => module.logout())">Se déconnecter</button>
         </div>
     </div>
 </nav>

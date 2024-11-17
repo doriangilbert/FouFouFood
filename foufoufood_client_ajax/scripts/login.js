@@ -1,3 +1,6 @@
+// Inclure db.js
+import { storeToken } from './db.js';
+
 const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
 const spinner = document.getElementById('loading-spinner');
@@ -14,10 +17,12 @@ loginForm.addEventListener('submit', async (e) => {
         const response = await fetch('http://localhost:3000/users/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email, password})
+            body: JSON.stringify({ email, password })
         });
 
         if (response.ok) {
+            const data = await response.json();
+            await storeToken(data.token);
             window.location.href = 'home.html';
         } else {
             errorMessage.textContent = 'Erreur de connexion. Veuillez vérifier vos identifiants.';
