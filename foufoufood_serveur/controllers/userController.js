@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
+const deliveryPartnerController = require('../controllers/deliveryPartnerController');
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -82,3 +83,14 @@ exports.login = async (req, res) => {
         res.status(500).json({error: err.message});
     }
 };
+
+exports.register = async (req, res) => {
+    const { role } = req.body;
+    if (role === 'utilisateur') {
+        await exports.createUser(req, res);
+    } else if (role === 'livreur') {
+        await deliveryPartnerController.createDeliveryPartner(req, res);
+    } else {
+        res.status(403).json({error: 'Accès interdit (le rôle doit être "utilisateur" ou "livreur")'});
+    }
+}

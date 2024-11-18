@@ -9,5 +9,6 @@ router.post('/', authenticateToken, authorizeRoles('admin'), userController.crea
 router.put('/:id', authenticateToken, authorizeRoles('admin'), userController.updateUser);
 router.delete('/:id', authenticateToken, authorizeRoles('admin'), userController.deleteUser);
 router.post('/login', userController.login);
+router.post('/register', userController.register);
 
 module.exports = router;
