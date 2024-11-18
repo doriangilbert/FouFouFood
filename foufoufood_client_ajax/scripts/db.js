@@ -17,11 +17,11 @@ function openDatabase() {
     });
 }
 
-export async function storeToken(token) {
+export async function storeToken(token, tokenExpiration) {
     const db = await openDatabase();
     const tx = db.transaction('tokens', 'readwrite');
     const store = tx.objectStore('tokens');
-    store.put({ id: 'authToken', token });
+    store.put({ id: 'authToken', token, tokenExpiration });
     await tx.complete;
     console.log('Token stored in IndexedDB');
 }
@@ -36,7 +36,21 @@ export async function getToken() {
         request.onerror = () => reject(request.error);
     });
     console.log('Token retrieved from IndexedDB:', tokenData);
-    return tokenData ? tokenData.token : null;
+
+    if (tokenData && Math.floor(Date.now() / 1000) <= tokenData.tokenExpiration) {
+        return tokenData.token;
+    } else {
+        if (tokenData) {
+            const deleteTx = db.transaction('tokens', 'readwrite');
+            const deleteStore = deleteTx.objectStore('tokens');
+            deleteStore.delete('authToken');
+            await deleteTx.complete;
+            console.log('Expired token deleted from IndexedDB');
+            alert('Votre session a expiré. Vous allez être redirigé vers l\'accueil.');
+            window.location.href = 'index.html';
+        }
+        return null;
+    }
 }
 
 export async function deleteToken() {

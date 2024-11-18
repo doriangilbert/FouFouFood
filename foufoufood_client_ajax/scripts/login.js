@@ -22,7 +22,7 @@ loginForm.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             const data = await response.json();
-            await storeToken(data.token);
+            await storeToken(data.token, data.tokenExpiration);
             window.location.href = 'home.html';
         } else {
             errorMessage.textContent = 'Erreur de connexion. Veuillez vérifier vos identifiants.';
