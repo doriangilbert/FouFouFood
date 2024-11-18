@@ -21,6 +21,10 @@
                 alert(`Statut de la commande mis à jour : \nID de la commande : ${data.order._id}\nDate de la commande : ${new Date(data.order.createdAt).toLocaleString()}\nNom du restaurant : ${data.restaurant.name}\nStatut : ${data.order.status}`);
             } else if (data.type === 'ORDER_ASSIGNED') {
                 alert(`Commande assignée : \nID de la commande : ${data.order._id}\nDate de la commande : ${new Date(data.order.createdAt).toLocaleString()}\nNom du restaurant : ${data.restaurant.name}\nAdresse du restaurant : ${data.restaurant.address}\nAdresse de livraison : ${data.order.deliveryAddress}`);
+            } else if (data.type === 'ORDER_CREATED') {
+                alert(`Placement de commande confirmé : \nID de la commande : ${data.order._id}\nDate de la commande : ${new Date(data.order.createdAt).toLocaleString()}\nNom du restaurant : ${data.restaurant.name}\nAdresse de livraison : ${data.order.deliveryAddress}`);
+            } else if (data.type === 'ORDER_UPDATED') {
+                alert(`Commande mise à jour : \nID de la commande : ${data.order._id}\nDate de la commande : ${new Date(data.order.createdAt).toLocaleString()}\nNom du restaurant : ${data.restaurant.name}\nStatut : ${data.order.status}`);
             } else {
                 alert(`Notification reçue : \nType : ${data.type}\nDétails : ${JSON.stringify(data)}`);
             }

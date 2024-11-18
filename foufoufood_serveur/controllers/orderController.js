@@ -59,7 +59,12 @@ exports.createOrder = async (req, res) => {
         });
 
         const savedOrder = await newOrder.save();
-        res.status(201).json(savedOrder);
+        res.status(201).json(savedOrder)
+
+        // Notifier l'utilisateur de la création de la commande
+        const io = req.app.get('io');
+        const orderRestaurant = await Restaurant.findById(savedOrder.restaurantId);
+        notifyUser(io, savedOrder.userId.toString(), {type: 'ORDER_CREATED', order: savedOrder, restaurant: orderRestaurant});
     } catch (err) {
         console.error(err);
         res.status(500).json({error: err.message});
@@ -73,6 +78,11 @@ exports.updateOrder = async (req, res) => {
             return res.status(404).json({message: 'Commande non trouvée'});
         }
         res.json(updatedOrder);
+
+        // Notifier l'utilisateur de la mise à jour de la commande
+        const io = req.app.get('io');
+        const orderRestaurant = await Restaurant.findById(updatedOrder.restaurantId);
+        notifyUser(io, updatedOrder.userId.toString(), {type: 'ORDER_UPDATED', order: updatedOrder, restaurant: orderRestaurant});
     } catch (err) {
         console.error(err);
         res.status(400).json({error: err.message});

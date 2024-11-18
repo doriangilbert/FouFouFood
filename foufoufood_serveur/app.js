@@ -57,10 +57,11 @@ app.get('/', (req, res) => {
             <p>Vous pouvez accéder aux notifications en utilisant l'adresse suivante suivie de l'identifiant de l'utilisateur souhaité :</p>
             <strong> http://localhost:8080/notifications</strong>
             <h2>Note importante</h2>
-            <p>Hormis les deux routes précédentes et la route de connexion, toutes les autres routes doivent être accédées de manière authentifiée avec un token généré suite à la connexion par la route suivante :</p>
+            <p>Hormis les deux routes précédentes et les routes de connexion et d'inscription, toutes les autres routes doivent être accédées de manière authentifiée avec un token généré suite à la connexion par la route suivante :</p>
             <strong>POST http://localhost:3000/users/login</strong>
+            <p>Il est possible de s'inscrire en tant qu'utilisateur ou livreur en utilisant la route suivante :</p>
+            <strong>POST http://localhost:3000/users/register</strong>
             <p>Un compte administrateur est à disposition avec l'email "admin@gmail.com" et le mot de passe "admin".</p>
-            <p>Se connecter avec ce compte permet de récupérer un token d'authentification permettant d'effectuer d'autres requêtes comme la création d'un compte utilisateur ou livreur.</p>
         </body>
     </html>
 `);
