@@ -1,4 +1,4 @@
-import { getToken, deleteToken } from './db.js';
+import {getToken, deleteToken, deleteUserId} from './db.js';
 
 const authButtons = document.getElementById('auth-buttons');
 const userButtons = document.getElementById('user-buttons');
@@ -20,5 +20,6 @@ if (token) {
 
 export async function logout() {
     await deleteToken();
+    await deleteUserId();
     window.location.href = '/';
 }

@@ -1,9 +1,10 @@
 function openDatabase() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('authDB', 1);
+        const request = indexedDB.open('foufoufood-db', 1);
         request.onupgradeneeded = event => {
             const db = event.target.result;
             db.createObjectStore('tokens', { keyPath: 'id' });
+            db.createObjectStore('ids', { keyPath: 'id' });
             console.log('Database upgrade needed, object store created');
         };
         request.onsuccess = event => {
@@ -60,4 +61,36 @@ export async function deleteToken() {
     store.delete('authToken');
     await tx.complete;
     console.log('Token deleted from IndexedDB');
+}
+
+export async function storeUserId(userId) {
+    const db = await openDatabase();
+    const tx = db.transaction('ids', 'readwrite');
+    const store = tx.objectStore('ids');
+    store.put({ id: 'userId', userId });
+    await tx.complete;
+    console.log('User ID stored in IndexedDB');
+}
+
+export async function getUserId() {
+    const db = await openDatabase();
+    const tx = db.transaction('ids', 'readonly');
+    const store = tx.objectStore('ids');
+    const userIdData = await new Promise((resolve, reject) => {
+        const request = store.get('userId');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    console.log('User ID retrieved from IndexedDB:', userIdData);
+
+    return userIdData ? userIdData.userId : null;
+}
+
+export async function deleteUserId() {
+    const db = await openDatabase();
+    const tx = db.transaction('ids', 'readwrite');
+    const store = tx.objectStore('ids');
+    store.delete('userId');
+    await tx.complete;
+    console.log('User ID deleted from IndexedDB');
 }

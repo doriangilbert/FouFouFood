@@ -10,7 +10,7 @@ const urlsToCache = [
 
 // Événement d'installation : mise en cache des ressources
 self.addEventListener('install', event => {
-    console.log('Service Worker installed');
+    console.log('Service Worker installé');
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {

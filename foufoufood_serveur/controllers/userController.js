@@ -78,7 +78,7 @@ exports.login = async (req, res) => {
         }
 
         const token = jwt.sign({userId: user._id, role: user.role}, secret, {expiresIn: '1d'});
-        res.status(200).json({token, tokenExpiration: Math.floor(Date.now() / 1000) + (24 * 60 * 60)}); // tokenExpiration : timestamp correspondant à la date de génération du token + 1 jour
+        res.status(200).json({token, tokenExpiration: Math.floor(Date.now() / 1000) + (24 * 60 * 60), userId: user._id}); // tokenExpiration : timestamp correspondant à la date de génération du token + 1 jour
     } catch (err) {
         res.status(500).json({error: err.message});
     }

@@ -1,5 +1,5 @@
 // Inclure db.js
-import { storeToken } from './db.js';
+import {storeToken, storeUserId} from './db.js';
 
 const loginForm = document.getElementById('login-form');
 const errorMessage = document.getElementById('error-message');
@@ -23,6 +23,7 @@ loginForm.addEventListener('submit', async (e) => {
         if (response.ok) {
             const data = await response.json();
             await storeToken(data.token, data.tokenExpiration);
+            await storeUserId(data.userId);
             window.location.href = 'home.html';
         } else {
             errorMessage.textContent = 'Erreur de connexion. Veuillez vérifier vos identifiants.';
