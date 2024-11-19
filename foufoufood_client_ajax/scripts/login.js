@@ -1,4 +1,3 @@
-// Inclure db.js
 import {storeToken, storeUserId} from './db.js';
 
 const loginForm = document.getElementById('login-form');
