@@ -1,4 +1,4 @@
-import { getUserId } from './db.js';
+import {getToken, getUserId} from './db.js';
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
@@ -13,17 +13,17 @@ if ('serviceWorker' in navigator) {
                         socket.on('connect', () => {
                             console.log('Connecté au serveur');
                             socket.emit('register', clientId);
-                            registration.active.postMessage({ type: 'INIT_SOCKET', clientId });
+                            registration.active.postMessage({type: 'INIT_SOCKET', clientId});
                         });
 
                         socket.on('notification', (data) => {
                             console.log('Notification reçue :', data);
-                            registration.active.postMessage({ type: 'notification', data });
+                            registration.active.postMessage({type: 'notification', data});
                         });
 
                         socket.on('disconnect', () => {
                             console.log('Déconnecté du serveur');
-                            registration.active.postMessage({ type: 'status', message: 'Déconnecté du serveur' });
+                            registration.active.postMessage({type: 'status', message: 'Déconnecté du serveur'});
                         });
                     });
                 })
@@ -70,3 +70,61 @@ if ('serviceWorker' in navigator) {
         }
     });
 }
+
+function fetchRestaurants(token) {
+    fetch('http://localhost:3000/restaurants', {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': `Bearer ${token}`
+        })
+    })
+        .then(response => response.json())
+        .then(data => displayRestaurants(data))
+        .catch(error => console.error('Erreur:', error));
+}
+
+// Fonction pour afficher les restaurants
+function displayRestaurants(restaurants) {
+    const restaurantList = document.getElementById("restaurant-list");
+    restaurantList.innerHTML = ""; // Vide la liste existante
+
+    restaurants.forEach(restaurant => {
+        const restaurantBlock = document.createElement("div");
+
+        // Changez "col-md-4" (3 colonnes par ligne) en "col-md-6" (2 colonnes par ligne)
+        restaurantBlock.className = "col-md-6 col-sm-12 mb-4";
+
+        restaurantBlock.innerHTML = `
+            <div class="card h-100" role="button" tabindex="0">
+                <div class="card-body">
+                    <h5 class="card-title">${restaurant.name}</h5>
+                    <p class="card-text">Adresse : ${restaurant.address}</p>
+                    <p class="card-text">Cuisine : ${restaurant.cuisine}</p>
+                </div>
+            </div>
+        `;
+
+        // Fonction de navigation vers la page des détails
+        function navigateToRestaurant() {
+            window.location.href = `restaurant.html?id=${restaurant.id}`;
+        }
+
+        // Ajout des événements
+        restaurantBlock.addEventListener("click", navigateToRestaurant);
+        restaurantBlock.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                navigateToRestaurant();
+            }
+        });
+
+        restaurantList.appendChild(restaurantBlock);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const token = await getToken();
+    fetchRestaurants(token);
+});
+
+// Charger les restaurants au chargement de la page
+document.addEventListener("DOMContentLoaded", fetchRestaurants);
