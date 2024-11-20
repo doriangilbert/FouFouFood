@@ -1,5 +1,33 @@
 const CACHE_NAME = 'foufoufood-cache-v1';
-const urlsToCache = [];
+const urlsToCache = [
+    '/',
+    '/index.html',
+    '/home.html',
+    '/login.html',
+    '/register.html',
+    '/navbar.html',
+    '/profile.html',
+    '/restaurant.html',
+    '/menu.html',
+    '/styles/main.css',
+    '/styles/home.css',
+    '/styles/restaurant.css',
+    '/scripts/db.js',
+    '/scripts/home.js',
+    '/scripts/main.js',
+    '/scripts/navbar.js',
+    '/scripts/notifications.js',
+    '/scripts/profile.js',
+    '/scripts/login.js',
+    '/scripts/register.js',
+    '/scripts/restaurant.js',
+    '/images/app-favicon.svg',
+    '/images/notification-favicon.svg',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
+    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+    'https://cdn.socket.io/4.0.0/socket.io.min.js'
+];
 
 self.addEventListener('install', (event) => {
     console.log('Service Worker installé');
