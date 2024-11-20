@@ -32,17 +32,36 @@
             <h2 class="text-center mt-5">Inscription</h2>
             <form id="register-form">
                 <div class="mb-3">
-                    <label for="name" class="form-label">Nom</label>
+                    <label for="role" class="form-label">Rôle</label>
+                    <select class="form-select" id="role" required>
+                        <option value="">Sélectionnez votre rôle</option>
+                        <option value="utilisateur">Utilisateur</option>
+                        <option value="livreur">Livreur</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nom *</label>
                     <input type="text" class="form-control" id="name" placeholder="Entrez votre nom" required>
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Adresse e-mail</label>
+                    <label for="email" class="form-label">Adresse e-mail *</label>
                     <input type="email" class="form-control" id="email" placeholder="Entrez votre e-mail" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Mot de passe</label>
-                    <input type="password" class="form-control" id="password" placeholder="Entrez votre mot de passe"
-                           required>
+                    <input type="password" class="form-control" id="password" placeholder="Entrez votre mot de passe" required>
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Numéro de téléphone</label>
+                    <input type="text" class="form-control" id="phone" placeholder="Entrez votre numéro de téléphone">
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Adresse</label>
+                    <input type="text" class="form-control" id="address" placeholder="Entrez votre adresse">
+                </div>
+                <div class="mb-3" id="vehicle-container" style="display: none;">
+                    <label for="vehicle" class="form-label">Véhicule</label>
+                    <input type="text" class="form-control" id="vehicle" placeholder="Entrez votre véhicule">
                 </div>
                 <button type="submit" class="btn btn-success w-100">S'inscrire</button>
             </form>
@@ -58,5 +77,16 @@
         crossorigin="anonymous"></script>
 <script type="module" src="scripts/main.js"></script>
 <script type="module" src="scripts/register.js"></script>
+<script>
+    document.getElementById('role').addEventListener('change', function () {
+        const role = this.value;
+        const vehicleContainer = document.getElementById('vehicle-container');
+        if (role === 'livreur') {
+            vehicleContainer.style.display = 'block';
+        } else {
+            vehicleContainer.style.display = 'none';
+        }
+    });
+</script>
 </body>
 </html>
