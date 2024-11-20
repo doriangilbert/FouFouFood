@@ -3,9 +3,7 @@ import {getToken} from './db.js';
 // Récupérer l'ID depuis l'URL
 function getRestaurantIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get("id");
-    console.log("ID récupéré depuis l'URL :", id); // Vérifiez ici
-    return id;
+    return urlParams.get("id");
 }
 
 function fetchRestaurantAndMenus(token, restaurantId) {
@@ -52,26 +50,53 @@ function displayRestaurantDetails(restaurant, menus) {
             <div class="card h-100" role="button" tabindex="0">
                 <div class="card-body">
                     <h5 class="card-title">${menuItem.name}</h5>
+                    <p class="card-title">${menuItem.description}</p>
                     <p class="card-text">Adresse : ${menuItem.price}$</p>
+                </div>
+            </div>
+        `;
+        // ajout de bouton pour valider notre ajout de menu dans le panier
+        menuBlock.innerHTML += `
+            <div class="card-footer">
+                <div class="input-group">
+                    <input type="number" id="menuQuantity_${menuItem._id}" class="form-control" value="1" min="1" max="10">
+                    <button id="validateButton_${menuItem._id}" class="btn btn-primary">Ajouter au panier</button>
                 </div>
             </div>
         `;
 
         menuList.appendChild(menuBlock);
 
-    function navigateToMenu() {
-        window.location.href = `menu.html?id=${menuItem._id}`;
-    }
+        // Ajout de l'événement au bouton de validation
+        const validateButton = document.getElementById(`validateButton_${menuItem._id}`);
+        const quantityInput = document.getElementById(`menuQuantity_${menuItem._id}`);
 
-    // Ajout des événements
-    menuBlock.addEventListener("click", navigateToMenu);
-    menuBlock.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-            navigateToMenu();
+        validateButton.addEventListener("click", (event) => {
+            event.stopPropagation();  // Empêche la propagation de l'événement
+            event.preventDefault();  // Empêche toute navigation ou comportement par défaut
+
+            // Réinitialiser la valeur du champ de quantité à 1
+            quantityInput.value = 1;
+            console.log(`Quantité pour "${menuItem.name}" réinitialisée à 1`);
+        });
+
+        quantityInput.addEventListener("click", (event) => {
+            event.stopPropagation();  // Empêche la propagation de l'événement
+        });
+
+        function navigateToMenu() {
+            window.location.href = `menu.html?id=${menuItem._id}`;
         }
-    });
 
-    menuList.appendChild(menuBlock);
+        // Ajout des événements
+        menuBlock.addEventListener("click", navigateToMenu);
+        menuBlock.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                navigateToMenu();
+            }
+        });
+
+        menuList.appendChild(menuBlock);
     });
 }
 
