@@ -17,7 +17,10 @@ const {setupSocketIO} = require('./utils/socketUtils');
 
 app.use(express.json()); // Pour parser les corps de requêtes JSON
 
-app.use(cors()); // Appliquer le middleware CORS
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+})); // Appliquer le middleware CORS
 
 // Connexion à MongoDB
 const uri = process.env.DB_URI; // Récupérer l'URI de la base de données depuis les variables d'environnement
@@ -29,7 +32,12 @@ mongoose.connect(uri)
 const server = http.createServer(app);
 
 // Créer le serveur Socket.IO
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+  }
+});
 app.set('io', io);
 
 app.use('/users', userRoutes);

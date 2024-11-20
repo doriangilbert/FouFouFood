@@ -1,9 +1,6 @@
 const CACHE_NAME = 'foufoufood-cache-v1';
-
-// URLs des ressources à mettre en cache
 const urlsToCache = [];
 
-// Événement d'installation : mettre en cache les ressources
 self.addEventListener('install', (event) => {
     console.log('Service Worker installé');
     event.waitUntil(
@@ -14,10 +11,9 @@ self.addEventListener('install', (event) => {
             console.error('Échec de la mise en cache :', error);
         })
     );
-    self.skipWaiting(); // Forcer l'activation immédiate
+    self.skipWaiting();
 });
 
-// Événement d'activation : nettoyer les anciens caches
 self.addEventListener('activate', (event) => {
     console.log('Service Worker activé');
     event.waitUntil(
@@ -32,10 +28,9 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    self.clients.claim(); // Prendre le contrôle des pages immédiatement
+    self.clients.claim();
 });
 
-// Événement de fetch : intercepter les requêtes réseau
 self.addEventListener('fetch', (event) => {
     console.log('Interception de la requête pour :', event.request.url);
     event.respondWith(
@@ -46,4 +41,18 @@ self.addEventListener('fetch', (event) => {
             });
         })
     );
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'INIT_SOCKET') {
+        console.log(`Socket initialized for client ID: ${event.data.clientId}`);
+    } else if (event.data && event.data.type === 'notification') {
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.postMessage({ type: 'notification', data: event.data.data }));
+        });
+    } else if (event.data && event.data.type === 'status') {
+        self.clients.matchAll().then(clients => {
+            clients.forEach(client => client.postMessage({ type: 'status', message: event.data.message }));
+        });
+    }
 });
