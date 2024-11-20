@@ -59,6 +59,8 @@ exports.createOrder = async (req, res) => {
         });
 
         const savedOrder = await newOrder.save();
+        // Ajouter l'identifiant de la commande à la liste des commandes de l'utilisateur
+        await User.findByIdAndUpdate(userId, { $push: { orders: savedOrder._id } });
         res.status(201).json(savedOrder)
 
         // Notifier l'utilisateur de la création de la commande
@@ -95,6 +97,8 @@ exports.deleteOrder = async (req, res) => {
         if (!deletedOrder) {
             return res.status(404).json({message: 'Commande non trouvée'});
         }
+        // Supprimer l'identifiant de la commande de la liste des commandes de l'utilisateur
+        await User.findByIdAndUpdate(deletedOrder.userId, { $pull: { orders: deletedOrder._id } });
         res.json({message: 'Commande supprimée avec succès'});
     } catch (err) {
         console.error(err);
