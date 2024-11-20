@@ -20,7 +20,6 @@ function displayRestaurants(restaurants) {
     restaurants.forEach(restaurant => {
         const restaurantBlock = document.createElement("div");
 
-        // Changez "col-md-4" (3 colonnes par ligne) en "col-md-6" (2 colonnes par ligne)
         restaurantBlock.className = "col-md-6 col-sm-12 mb-4";
 
         restaurantBlock.innerHTML = `
@@ -35,7 +34,7 @@ function displayRestaurants(restaurants) {
 
         // Fonction de navigation vers la page des détails
         function navigateToRestaurant() {
-            window.location.href = `restaurant.html?id=${restaurant.id}`;
+            window.location.href = `restaurant.html?id=${restaurant._id}`;
         }
 
         // Ajout des événements

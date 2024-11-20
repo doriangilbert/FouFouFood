@@ -1,0 +1,9 @@
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    border: 2px solid rgba(0, 123, 255, 0.5); /* Bordure légèrement plus épaisse et bleutée */
+    background-color: rgba(0, 123, 255, 0.1); /* Fond bleu très clair */
+    transform: scale(1.02); /* Agrandit légèrement le bloc */
+}

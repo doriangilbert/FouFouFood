@@ -4,6 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FouFouFood</title>
+  <!-- Add favicon -->
+  <link rel="icon" href="images/app-favicon.svg" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="styles/home.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -28,15 +31,25 @@
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-md-6">
-      <h2 class="text-center mt-5">${restaurant.name}</h2>
+      <h2 id="restaurant-name" class="text-center mt-3"></h2>
+      <p id="restaurant-address" class="text-center"></p>
+      <p id="restaurant-cuisine" class="text-center"></p>
+      <h3 class="text-center mt-5">Voici la liste de menu que propose le restaurant:</h3>
+    </div>
+  </div>
+  <div class="container mt-4">
+    <div id="menu-list" class="row row-cols-1 row-cols-md-2 g-4">
+      <!-- Les blocs des restaurants seront ajoutés ici -->
     </div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script type="module" src="scripts/main.js"></script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script type="module" src="scripts/notifications.js"></script>
+<script type="module" src="scripts/restaurant.js"></script>
 </body>
 </html>
