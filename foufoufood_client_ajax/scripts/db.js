@@ -5,14 +5,15 @@ function openDatabase() {
             const db = event.target.result;
             db.createObjectStore('tokens', { keyPath: 'id' });
             db.createObjectStore('ids', { keyPath: 'id' });
-            console.log('Database upgrade needed, object store created');
+            db.createObjectStore('cart', { keyPath: 'id' });
+            console.log('Mise à niveau de la base de données nécessaire, création de l\'object store');
         };
         request.onsuccess = event => {
-            console.log('Database opened successfully');
+            console.log('Base de données ouverte avec succès');
             resolve(event.target.result);
         };
         request.onerror = event => {
-            console.error('Database error:', event.target.error);
+            console.error('Erreur de la base de données :', event.target.error);
             reject(event.target.error);
         };
     });
@@ -24,7 +25,7 @@ export async function storeToken(token, tokenExpiration) {
     const store = tx.objectStore('tokens');
     store.put({ id: 'authToken', token, tokenExpiration });
     await tx.complete;
-    console.log('Token stored in IndexedDB');
+    console.log('Jeton stocké dans IndexedDB');
 }
 
 export async function getToken() {
@@ -36,7 +37,7 @@ export async function getToken() {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
-    console.log('Token retrieved from IndexedDB:', tokenData);
+    console.log('Jeton récupéré depuis IndexedDB :', tokenData);
 
     if (tokenData && Math.floor(Date.now() / 1000) <= tokenData.tokenExpiration) {
         return tokenData.token;
@@ -46,7 +47,7 @@ export async function getToken() {
             const deleteStore = deleteTx.objectStore('tokens');
             deleteStore.delete('authToken');
             await deleteTx.complete;
-            console.log('Expired token deleted from IndexedDB');
+            console.log('Jeton expiré supprimé de IndexedDB');
             alert('Votre session a expiré. Vous allez être redirigé vers l\'accueil.');
             window.location.href = 'index.html';
         }
@@ -60,7 +61,7 @@ export async function deleteToken() {
     const store = tx.objectStore('tokens');
     store.delete('authToken');
     await tx.complete;
-    console.log('Token deleted from IndexedDB');
+    console.log('Jeton supprimé de IndexedDB');
 }
 
 export async function storeUserId(userId) {
@@ -69,7 +70,7 @@ export async function storeUserId(userId) {
     const store = tx.objectStore('ids');
     store.put({ id: 'userId', userId });
     await tx.complete;
-    console.log('User ID stored in IndexedDB');
+    console.log('ID utilisateur stocké dans IndexedDB');
 }
 
 export async function getUserId() {
@@ -81,7 +82,7 @@ export async function getUserId() {
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
     });
-    console.log('User ID retrieved from IndexedDB:', userIdData);
+    console.log('ID utilisateur récupéré depuis IndexedDB :', userIdData);
 
     return userIdData ? userIdData.userId : null;
 }
@@ -92,5 +93,45 @@ export async function deleteUserId() {
     const store = tx.objectStore('ids');
     store.delete('userId');
     await tx.complete;
-    console.log('User ID deleted from IndexedDB');
+    console.log('ID utilisateur supprimé de IndexedDB');
+}
+
+export async function storeCartItem(menuItemId, quantity) {
+    const db = await openDatabase();
+    const tx = db.transaction('cart', 'readwrite');
+    const store = tx.objectStore('cart');
+    store.put({ id: menuItemId, quantity });
+    await tx.complete;
+    console.log('Article du panier stocké dans IndexedDB');
+}
+
+export async function getCartItems() {
+    const db = await openDatabase();
+    const tx = db.transaction('cart', 'readonly');
+    const store = tx.objectStore('cart');
+    const items = await new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    console.log('Articles du panier récupérés depuis IndexedDB :', items);
+    return items;
+}
+
+export async function deleteCartItem(menuItemId) {
+    const db = await openDatabase();
+    const tx = db.transaction('cart', 'readwrite');
+    const store = tx.objectStore('cart');
+    store.delete(menuItemId);
+    await tx.complete;
+    console.log('Article du panier supprimé de IndexedDB');
+}
+
+export async function clearCart() {
+    const db = await openDatabase();
+    const tx = db.transaction('cart', 'readwrite');
+    const store = tx.objectStore('cart');
+    store.clear();
+    await tx.complete;
+    console.log('Tous les articles du panier supprimés de IndexedDB');
 }
