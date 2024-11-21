@@ -1,4 +1,4 @@
-import {getToken, deleteToken, deleteUserId} from './db.js';
+import {getToken, deleteToken, deleteUserId, clearCart, deleteSelectedRestaurantId} from './db.js';
 
 const authButtons = document.getElementById('auth-buttons');
 const userButtons = document.getElementById('user-buttons');
@@ -21,6 +21,8 @@ if (token) {
 export async function logout() {
     await deleteToken();
     await deleteUserId();
+    await clearCart();
+    await deleteSelectedRestaurantId()
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations()
             .then(registrations => {

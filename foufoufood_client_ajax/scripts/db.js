@@ -4,8 +4,9 @@ function openDatabase() {
         request.onupgradeneeded = event => {
             const db = event.target.result;
             db.createObjectStore('tokens', { keyPath: 'id' });
-            db.createObjectStore('ids', { keyPath: 'id' });
+            db.createObjectStore('usersIds', { keyPath: 'id' });
             db.createObjectStore('cart', { keyPath: 'id' });
+            db.createObjectStore('restaurantsIds', { keyPath: 'id' });
             console.log('Mise à niveau de la base de données nécessaire, création de l\'object store');
         };
         request.onsuccess = event => {
@@ -66,8 +67,8 @@ export async function deleteToken() {
 
 export async function storeUserId(userId) {
     const db = await openDatabase();
-    const tx = db.transaction('ids', 'readwrite');
-    const store = tx.objectStore('ids');
+    const tx = db.transaction('usersIds', 'readwrite');
+    const store = tx.objectStore('usersIds');
     store.put({ id: 'userId', userId });
     await tx.complete;
     console.log('ID utilisateur stocké dans IndexedDB');
@@ -75,8 +76,8 @@ export async function storeUserId(userId) {
 
 export async function getUserId() {
     const db = await openDatabase();
-    const tx = db.transaction('ids', 'readonly');
-    const store = tx.objectStore('ids');
+    const tx = db.transaction('usersIds', 'readonly');
+    const store = tx.objectStore('usersIds');
     const userIdData = await new Promise((resolve, reject) => {
         const request = store.get('userId');
         request.onsuccess = () => resolve(request.result);
@@ -89,8 +90,8 @@ export async function getUserId() {
 
 export async function deleteUserId() {
     const db = await openDatabase();
-    const tx = db.transaction('ids', 'readwrite');
-    const store = tx.objectStore('ids');
+    const tx = db.transaction('usersIds', 'readwrite');
+    const store = tx.objectStore('usersIds');
     store.delete('userId');
     await tx.complete;
     console.log('ID utilisateur supprimé de IndexedDB');
@@ -134,4 +135,36 @@ export async function clearCart() {
     store.clear();
     await tx.complete;
     console.log('Tous les articles du panier supprimés de IndexedDB');
+}
+
+export async function storeSelectedRestaurantId(restaurantId) {
+    const db = await openDatabase();
+    const tx = db.transaction('restaurantsIds', 'readwrite');
+    const store = tx.objectStore('restaurantsIds');
+    store.put({ id: 'selectedRestaurantId', restaurantId });
+    await tx.complete;
+    console.log('ID du restaurant sélectionné stocké dans IndexedDB');
+}
+
+export async function getSelectedRestaurantId() {
+    const db = await openDatabase();
+    const tx = db.transaction('restaurantsIds', 'readonly');
+    const store = tx.objectStore('restaurantsIds');
+    const restaurantIdData = await new Promise((resolve, reject) => {
+        const request = store.get('selectedRestaurantId');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+    console.log('ID du restaurant sélectionné récupéré depuis IndexedDB :', restaurantIdData);
+
+    return restaurantIdData ? restaurantIdData.restaurantId : null;
+}
+
+export async function deleteSelectedRestaurantId() {
+    const db = await openDatabase();
+    const tx = db.transaction('restaurantsIds', 'readwrite');
+    const store = tx.objectStore('restaurantsIds');
+    store.delete('selectedRestaurantId');
+    await tx.complete;
+    console.log('ID du restaurant sélectionné supprimé de IndexedDB');
 }
