@@ -1,4 +1,4 @@
-import {getToken} from './db.js';
+import {getToken, getUserId} from './db.js';
 
 const spinner = document.getElementById('loading-spinner');
 
@@ -123,7 +123,25 @@ function displayRestaurants(restaurants) {
     });
 }
 
+async function fetchProfile(token) {
+    const cache = await caches.open('foufoufood-cache-v1');
+    const profileRequest = new Request(`http://localhost:3000/users/${await getUserId()}`, {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': `Bearer ${token}`
+        })
+    });
+
+    try {
+        const response = await fetch(profileRequest);
+        await cache.put(profileRequest, response.clone());
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     const token = await getToken();
     await fetchRestaurants(token);
+    await fetchProfile(token); // Prefetch profile data
 });
