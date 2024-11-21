@@ -1,4 +1,4 @@
-import {getToken} from './db.js';
+import {getToken, storeCartItem} from './db.js';
 
 // Récupérer l'ID depuis l'URL
 function getRestaurantIdFromUrl() {
@@ -75,9 +75,11 @@ function displayRestaurantDetails(restaurant, menus) {
             event.stopPropagation();  // Empêche la propagation de l'événement
             event.preventDefault();  // Empêche toute navigation ou comportement par défaut
 
+            // Ajouter le menu et la quantité dans le panier
+            storeCartItem(menuItem._id, quantityInput.value);
+
             // Réinitialiser la valeur du champ de quantité à 1
             quantityInput.value = 1;
-            console.log(`Quantité pour "${menuItem.name}" réinitialisée à 1`);
         });
 
         quantityInput.addEventListener("click", (event) => {
