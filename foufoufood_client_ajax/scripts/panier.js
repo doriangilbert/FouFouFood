@@ -1,4 +1,4 @@
-import {getCartItems, getToken, clearCart, getUserId, getRestaurantId} from './db.js';
+import {getCartItems, getToken, clearCart, getUserId, getSelectedRestaurantId} from './db.js';
 
 // Function to fetch item details from the database
 async function fetchItemDetails(token, menuId) {
@@ -68,7 +68,7 @@ async function displayCartItems() {
 // Function to submit the order
 async function submitOrder(token, cartItems, totalPrice) {
     const userId = await getUserId();
-    const restaurantId = await getRestaurantId();
+    const restaurantId = await getSelectedRestaurantId();
 
     if (!restaurantId) {
         console.error('Restaurant ID not found');
