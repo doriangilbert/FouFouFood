@@ -1,4 +1,4 @@
-import {getToken, storeCartItem} from './db.js';
+import {getToken, storeCartItem, storeSelectedRestaurantId, getSelectedRestaurantId} from './db.js';
 
 const spinner = document.getElementById('loading-spinner');
 
@@ -109,14 +109,21 @@ function displayRestaurantDetails(restaurant, menus) {
         const validateButton = document.getElementById(`validateButton_${menuItem._id}`);
         const quantityInput = document.getElementById(`menuQuantity_${menuItem._id}`);
 
-        validateButton.addEventListener("click", (event) => {
-            event.stopPropagation();  // Empêche la propagation de l'événement
-            event.preventDefault();  // Empêche toute navigation ou comportement par défaut
+        validateButton.addEventListener("click", async (event) => {
+            event.stopPropagation();  // Prevent event propagation
+            event.preventDefault();  // Prevent default behavior
 
-            // Ajouter le menu et la quantité dans le panier
+            // Check if the restaurant ID is already stored
+            const storedRestaurantId = await getSelectedRestaurantId();
+            if (!storedRestaurantId) {
+                // Store the restaurant ID if it's the first item
+                await storeSelectedRestaurantId(menuItem.restaurantId);
+            }
+
+            // Add the menu item and quantity to the cart
             storeCartItem(menuItem._id, quantityInput.value);
 
-            // Réinitialiser la valeur du champ de quantité à 1
+            // Reset the quantity input field to 1
             quantityInput.value = 1;
         });
 

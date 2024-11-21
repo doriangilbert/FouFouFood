@@ -1,14 +1,23 @@
-import {getCartItems, getToken, clearCart, getUserId, getRestaurantId} from './db.js';
+import {getCartItems, getToken, clearCart, getUserId, getSelectedRestaurantId} from './db.js';
 
 // Function to fetch item details from the database
 async function fetchItemDetails(token, menuId) {
-    const response = await fetch(`http://localhost:3000/menuitems/${menuId}`, {
-        method: 'GET',
-        headers: new Headers({
-            'Authorization': `Bearer ${token}`
-        })
-    });
-    return response.json();
+    try {
+        const response = await fetch(`http://localhost:3000/menuitems/${menuId}`, {
+            method: 'GET',
+            headers: new Headers({
+                'Authorization': `Bearer ${token}`
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+        return response.json();
+    } catch (error) {
+        console.error('Error fetching item details:', error);
+        alert('Failed to fetch item details. Please try again later.');
+        return null;
+    }
 }
 
 // Function to display cart items and total price
@@ -68,11 +77,11 @@ async function displayCartItems() {
 // Function to submit the order
 async function submitOrder(token, cartItems, totalPrice) {
     const userId = await getUserId();
-    const restaurantId = await getRestaurantId();
+    const restaurantId = await getSelectedRestaurantId();
 
     if (!restaurantId) {
         console.error('Restaurant ID not found');
-        alert('Erreur: ID du restaurant introuvable');
+        alert('Error: Restaurant ID not found');
         return;
     }
 
@@ -88,23 +97,27 @@ async function submitOrder(token, cartItems, totalPrice) {
         deliveryPartnerId: '672409fd29fe1d14a567a5d0' // Replace with actual delivery partner ID
     };
 
-    const response = await fetch('http://localhost:3000/orders', {
-        method: 'POST',
-        headers: new Headers({
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        }),
-        body: JSON.stringify(order)
-    });
+    try {
+        const response = await fetch('http://localhost:3000/orders', {
+            method: 'POST',
+            headers: new Headers({
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(order)
+        });
 
-    if (response.ok) {
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.statusText}`);
+        }
+
         console.log('Order submitted successfully');
         await clearCart();
-        alert('Commande validée avec succès!');
+        alert('Order placed successfully!');
         window.location.href = 'home.html';
-    } else {
-        console.error('Erreur lors de la soumission de la commande:', response.statusText);
-        alert('Erreur lors de la soumission de la commande');
+    } catch (error) {
+        console.error('Error submitting order:', error);
+        alert('Failed to submit order. Please try again later.');
     }
 }
 
