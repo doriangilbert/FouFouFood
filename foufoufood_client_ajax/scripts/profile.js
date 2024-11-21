@@ -85,6 +85,20 @@ async function fetchMenuDetails(menuId, token) {
     }
 }
 
+async function fetchRestaurantDetails(restaurantId, token) {
+    const response = await fetch(`http://localhost:3000/restaurants/${restaurantId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (response.ok) {
+        return response.json();
+    } else {
+        console.error('Failed to fetch restaurant details:', response.statusText);
+        return null;
+    }
+}
+
 async function displayUserOrders(orderIds, token) {
     const ordersDiv = document.getElementById('user-orders');
     ordersDiv.innerHTML = '';
@@ -101,43 +115,29 @@ async function displayUserOrders(orderIds, token) {
             const response = await fetch(orderRequest);
             if (response.ok) {
                 const orderData = await response.json();
-                const restaurantRequest = new Request(`http://localhost:3000/restaurants/${orderData.restaurantId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                const restaurantDetails = await fetchRestaurantDetails(orderData.restaurantId, token);
+                const restaurantName = restaurantDetails ? restaurantDetails.name : 'Nom du restaurant inconnu';
+
+                const orderElement = document.createElement('div');
+                orderElement.className = 'order-item';
+                orderElement.style.backgroundColor = 'white'; // White background
+                orderElement.style.border = '1px solid black'; // Black border
+                orderElement.style.padding = '10px';
+                orderElement.style.marginBottom = '10px';
+
+                let orderContent = `<h5>Commande ${i + 1}: ${restaurantName}</h5>`;
+                for (const item of orderData.items) {
+                    const menuDetails = await fetchMenuDetails(item.item, token);
+                    if (menuDetails) {
+                        const totalPrice = menuDetails.price * item.quantity;
+                        orderContent += `<p>Quantité: ${item.quantity} x ${menuDetails.name}: ${totalPrice}$</p>`;
+                    } else {
+                        orderContent += `<p>Quantité: ${item.quantity} x Nom du menu inconnu: Prix inconnu</p>`;
                     }
-                });
-
-                const restaurantResponse = await fetch(restaurantRequest);
-                if (restaurantResponse.ok) {
-                    const restaurantData = await restaurantResponse.json();
-                    const orderElement = document.createElement('div');
-                    orderElement.className = 'order-item';
-                    orderElement.style.backgroundColor = 'white'; // White background
-                    orderElement.style.border = '1px solid black'; // Black border
-                    orderElement.style.padding = '10px';
-                    orderElement.style.marginBottom = '10px';
-
-                    let orderContent = `<h5>Commande ${i + 1}:</h5>`;
-                    orderContent += `<p><strong>ID de la commande :</strong> ${orderData._id}</p>`;
-                    orderContent += `<p><strong>Restaurant :</strong> ${restaurantData.name}</p>`;
-                    orderContent += `<p><strong>Adresse de livraison :</strong> ${orderData.deliveryAddress}</p>`;
-                    orderContent += `<p><strong>Date et heure de la commande :</strong> ${new Date(orderData.createdAt).toLocaleString()}</p>`;
-
-                    for (const item of orderData.items) {
-                        const menuDetails = await fetchMenuDetails(item.item, token);
-                        if (menuDetails) {
-                            const totalPrice = menuDetails.price * item.quantity;
-                            orderContent += `<p>${item.quantity} x ${menuDetails.name}: ${totalPrice}$</p>`;
-                        } else {
-                            orderContent += `<p>${item.quantity} x Nom du menu inconnu: Prix inconnu</p>`;
-                        }
-                    }
-                    orderContent += `<p><strong>Statut :</strong> ${orderData.status}</p>`;
-                    orderElement.innerHTML = orderContent;
-                    ordersDiv.appendChild(orderElement);
-                } else {
-                    console.error('Failed to fetch restaurant data:', restaurantResponse.statusText);
                 }
+                orderContent += `<p>Statut: ${orderData.status}</p>`;
+                orderElement.innerHTML = orderContent;
+                ordersDiv.appendChild(orderElement);
             } else {
                 console.error('Failed to fetch order data:', response.statusText);
             }
