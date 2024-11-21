@@ -125,7 +125,8 @@ function displayRestaurants(restaurants) {
 
 async function fetchProfile(token) {
     const cache = await caches.open('foufoufood-cache-v1');
-    const profileRequest = new Request(`http://localhost:3000/users/${await getUserId()}`, {
+    const userId = await getUserId();
+    const profileRequest = new Request(`http://localhost:3000/users/${userId}`, {
         method: 'GET',
         headers: new Headers({
             'Authorization': `Bearer ${token}`
@@ -134,7 +135,71 @@ async function fetchProfile(token) {
 
     try {
         const response = await fetch(profileRequest);
-        await cache.put(profileRequest, response.clone());
+        if (response.ok) {
+            const userData = await response.clone().json();
+            await cache.put(profileRequest, response);
+
+            // Prefetch orders
+            const orderRequests = userData.orders.map(orderId =>
+                new Request(`http://localhost:3000/orders/${orderId}`, {
+                    method: 'GET',
+                    headers: new Headers({
+                        'Authorization': `Bearer ${token}`
+                    })
+                })
+            );
+
+            for (const orderRequest of orderRequests) {
+                try {
+                    const orderResponse = await fetch(orderRequest);
+                    if (orderResponse.ok) {
+                        await cache.put(orderRequest, orderResponse.clone());
+
+                        const orderData = await orderResponse.json();
+
+                        // Prefetch restaurant details
+                        const restaurantRequest = new Request(`http://localhost:3000/restaurants/${orderData.restaurantId}`, {
+                            method: 'GET',
+                            headers: new Headers({
+                                'Authorization': `Bearer ${token}`
+                            })
+                        });
+
+                        try {
+                            const restaurantResponse = await fetch(restaurantRequest);
+                            if (restaurantResponse.ok) {
+                                await cache.put(restaurantRequest, restaurantResponse.clone());
+                            }
+                        } catch (error) {
+                            console.error(`Error fetching restaurant details for order ${orderData._id}:`, error);
+                        }
+
+                        // Prefetch menu items
+                        const menuRequests = orderData.items.map(item =>
+                            new Request(`http://localhost:3000/menuitems/${item.item}`, {
+                                method: 'GET',
+                                headers: new Headers({
+                                    'Authorization': `Bearer ${token}`
+                                })
+                            })
+                        );
+
+                        for (const menuRequest of menuRequests) {
+                            try {
+                                const menuResponse = await fetch(menuRequest);
+                                if (menuResponse.ok) {
+                                    await cache.put(menuRequest, menuResponse.clone());
+                                }
+                            } catch (error) {
+                                console.error(`Error fetching menu item details for order ${orderData._id}:`, error);
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching order ${orderRequest.url}:`, error);
+                }
+            }
+        }
     } catch (error) {
         console.error('Error fetching profile:', error);
     }
