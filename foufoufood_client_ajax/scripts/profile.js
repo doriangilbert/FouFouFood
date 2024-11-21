@@ -22,23 +22,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const userData = await responseClone.json();
                 displayUserInfo(userData);
                 await cache.put(userRequest, response);
+                await displayUserOrders(userData.orders, token);
             } else {
-                console.error('Échec de la récupération des données utilisateur :', response.statusText);
+                console.error('Failed to fetch user data:', response.statusText);
             }
         } catch (error) {
-            console.error('Erreur lors de la récupération des données utilisateur :', error);
+            console.error('Error fetching user data:', error);
             const cachedResponse = await cache.match(userRequest);
             if (cachedResponse) {
                 const cachedData = await cachedResponse.json();
                 displayUserInfo(cachedData);
+                await displayUserOrders(cachedData.orders, token);
             } else {
-                console.error('Aucune donnée en cache disponible');
+                console.error('No cached data available');
             }
         } finally {
             spinner.style.display = 'none'; // Hide spinner after fetching data
         }
     } else {
-        console.error('Aucun ID utilisateur trouvé dans IndexedDB');
+        console.error('No user ID found in IndexedDB');
     }
 });
 
@@ -67,4 +69,63 @@ function displayUserInfo(userData) {
             userInfoDiv.innerHTML += `<p><strong>${field.label} :</strong> ${userData[field.key]}</p>`;
         }
     });
+}
+
+async function fetchMenuDetails(menuId, token) {
+    const response = await fetch(`http://localhost:3000/menuitems/${menuId}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+    if (response.ok) {
+        return response.json();
+    } else {
+        console.error('Failed to fetch menu details:', response.statusText);
+        return null;
+    }
+}
+
+async function displayUserOrders(orderIds, token) {
+    const ordersDiv = document.getElementById('user-orders');
+    ordersDiv.innerHTML = '';
+
+    for (let i = 0; i < orderIds.length; i++) {
+        const orderId = orderIds[i];
+        const orderRequest = new Request(`http://localhost:3000/orders/${orderId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        try {
+            const response = await fetch(orderRequest);
+            if (response.ok) {
+                const orderData = await response.json();
+                const orderElement = document.createElement('div');
+                orderElement.className = 'order-item';
+                orderElement.style.backgroundColor = 'white'; // White background
+                orderElement.style.border = '1px solid black'; // Black border
+                orderElement.style.padding = '10px';
+                orderElement.style.marginBottom = '10px';
+
+                let orderContent = `<h5>Commande ${i + 1}:</h5>`;
+                for (const item of orderData.items) {
+                    const menuDetails = await fetchMenuDetails(item.item, token);
+                    if (menuDetails) {
+                        const totalPrice = menuDetails.price * item.quantity;
+                        orderContent += `<p>${item.quantity} x ${menuDetails.name}: ${totalPrice}$</p>`;
+                    } else {
+                        orderContent += `<p>${item.quantity} x Nom du menu inconnu: Prix inconnu</p>`;
+                    }
+                }
+                orderContent += `<p>Statut: ${orderData.status}</p>`;
+                orderElement.innerHTML = orderContent;
+                ordersDiv.appendChild(orderElement);
+            } else {
+                console.error('Failed to fetch order data:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching order data:', error);
+        }
+    }
 }

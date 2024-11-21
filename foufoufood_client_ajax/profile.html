@@ -26,13 +26,19 @@
 </head>
 <body>
 <header id="navbar-container"></header>
-<div class="d-flex justify-content-center align-items-center vh-100 text-center">
-    <div>
-        <h2 class="mb-4">Informations de l'utilisateur</h2>
-        <div id="user-info" class="text-center"></div>
-        <div id="loading-spinner" class="spinner-border text-success" role="status" style="display: none;">
-            <span class="visually-hidden">Chargement...</span>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h2 class="mb-4">Informations de l'utilisateur</h2>
+            <div id="user-info"></div>
         </div>
+        <div class="col-md-6">
+            <h2 class="mb-4">Commandes de l'utilisateur</h2>
+            <div id="user-orders"></div>
+        </div>
+    </div>
+    <div id="loading-spinner" class="spinner-border text-success" role="status" style="display: none;">
+        <span class="visually-hidden">Chargement...</span>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
