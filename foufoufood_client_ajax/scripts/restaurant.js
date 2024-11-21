@@ -1,33 +1,71 @@
 import {getToken, storeCartItem} from './db.js';
 
+const spinner = document.getElementById('loading-spinner');
+
 // Récupérer l'ID depuis l'URL
 function getRestaurantIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("id");
 }
 
-function fetchRestaurantAndMenus(token, restaurantId) {
-    // Effectuer les deux requêtes en parallèle
-    Promise.all([
-        fetch(`http://localhost:3000/restaurants/${restaurantId}`, {
-            method: 'GET',
-            headers: new Headers({
-                'Authorization': `Bearer ${token}`
-            })
-        }).then(response => response.json()),
+async function fetchRestaurantAndMenus(token, restaurantId) {
+    if (!restaurantId) {
+        console.error('Restaurant ID is undefined');
+        return;
+    }
 
-        fetch(`http://localhost:3000/restaurants/${restaurantId}/menuitems`, {
-            method: 'GET',
-            headers: new Headers({
-                'Authorization': `Bearer ${token}`
-            })
-        }).then(response => response.json())
-    ])
-        .then(([restaurantData, menuData]) => {
-            // Appeler displayRestaurantDetails avec les deux jeux de données
-            displayRestaurantDetails(restaurantData, menuData);
+    spinner.style.display = 'block'; // Display spinner while fetching data
+
+    const cache = await caches.open('foufoufood-cache-v1');
+    const restaurantRequest = new Request(`http://localhost:3000/restaurants/${restaurantId}`, {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': `Bearer ${token}`
         })
-        .catch(error => console.error('Erreur:', error));
+    });
+    const menuRequest = new Request(`http://localhost:3000/restaurants/${restaurantId}/menuitems`, {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': `Bearer ${token}`
+        })
+    });
+
+    try {
+        const [restaurantResponse, menuResponse] = await Promise.all([
+            fetch(restaurantRequest),
+            fetch(menuRequest)
+        ]);
+
+        const restaurantResponseClone = restaurantResponse.clone();
+        const menuResponseClone = menuResponse.clone();
+
+        const [restaurantData, menuData] = await Promise.all([
+            restaurantResponseClone.json(),
+            menuResponseClone.json()
+        ]);
+
+        displayRestaurantDetails(restaurantData, menuData);
+
+        await cache.put(restaurantRequest, restaurantResponse);
+        await cache.put(menuRequest, menuResponse);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des données :', error);
+
+        const cachedRestaurantResponse = await cache.match(restaurantRequest);
+        const cachedMenuResponse = await cache.match(menuRequest);
+
+        if (cachedRestaurantResponse && cachedMenuResponse) {
+            const [cachedRestaurantData, cachedMenuData] = await Promise.all([
+                cachedRestaurantResponse.json(),
+                cachedMenuResponse.json()
+            ]);
+            displayRestaurantDetails(cachedRestaurantData, cachedMenuData);
+        } else {
+            console.error('Aucune donnée en cache disponible');
+        }
+    } finally {
+        spinner.style.display = 'none'; // Hide spinner after fetching data
+    }
 }
 
 // Mettre à jour le DOM avec les informations du restaurant
@@ -107,7 +145,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     const token = await getToken();
     const restaurantId = getRestaurantIdFromUrl();
 
-    fetchRestaurantAndMenus(token, restaurantId);
+    if (restaurantId) {
+        await fetchRestaurantAndMenus(token, restaurantId);
+    } else {
+        console.error('ID du restaurant non défini');
+    }
 });
 
 // Charger les restaurants au chargement de la page

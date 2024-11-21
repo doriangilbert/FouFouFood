@@ -1,20 +1,47 @@
 import {getToken} from './db.js';
 
+const spinner = document.getElementById('loading-spinner');
+
 // Récupérer l'ID depuis l'URL
 function getMenuIdFromUrl() {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get("id");
 }
 
-function fetchMenu(token, menuId) {
-        fetch(`http://localhost:3000/menuitems/${menuId}`, {
-            method: 'GET',
-            headers: new Headers({
-                'Authorization': `Bearer ${token}`
-            })
-        }).then(response => response.json())
-            .then(data => displayMenu(data))
-            .catch(error => console.error('Erreur:', error));
+async function fetchMenu(token, menuId) {
+    if (!menuId) {
+        console.error('Menu ID is undefined');
+        return;
+    }
+
+    spinner.style.display = 'block'; // Display spinner while fetching data
+
+    const cache = await caches.open('foufoufood-cache-v1');
+    const menuRequest = new Request(`http://localhost:3000/menuitems/${menuId}`, {
+        method: 'GET',
+        headers: new Headers({
+            'Authorization': `Bearer ${token}`
+        })
+    });
+
+    try {
+        const response = await fetch(menuRequest);
+        const responseClone = response.clone();
+        const data = await responseClone.json();
+        displayMenu(data);
+        await cache.put(menuRequest, response);
+    } catch (error) {
+        console.error('Erreur lors de la récupération du menu :', error);
+        const cachedResponse = await cache.match(menuRequest);
+        if (cachedResponse) {
+            const cachedData = await cachedResponse.json();
+            displayMenu(cachedData);
+        } else {
+            console.error('Aucune donnée en cache disponible');
+        }
+    } finally {
+        spinner.style.display = 'none'; // Hide spinner after fetching data
+    }
 }
 
 // Mettre à jour le DOM avec les informations du menu
@@ -30,7 +57,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     const token = await getToken();
     const menuId = getMenuIdFromUrl();
 
-    fetchMenu(token, menuId);
+    if (menuId) {
+        await fetchMenu(token, menuId);
+    } else {
+        console.error('ID du menu non défini');
+    }
 });
 
 // Charger les restaurants au chargement de la page

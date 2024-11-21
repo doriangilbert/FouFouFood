@@ -9,6 +9,7 @@ const urlsToCache = [
     '/profile.html',
     '/restaurant.html',
     '/menu.html',
+    '/panier.html',
     '/styles/main.css',
     '/styles/home.css',
     '/styles/restaurant.css',
@@ -21,6 +22,8 @@ const urlsToCache = [
     '/scripts/login.js',
     '/scripts/register.js',
     '/scripts/restaurant.js',
+    '/scripts/menu.js',
+    '/scripts/panier.js',
     '/images/app-favicon.svg',
     '/images/notification-favicon.svg',
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
@@ -60,15 +63,34 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-    console.log('Interception de la requête pour :', event.request.url);
-    event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request).catch((error) => {
-                console.error('Échec de la récupération :', error);
-                throw error;
-            });
-        })
-    );
+    const url = new URL(event.request.url);
+
+    if (event.request.method === 'GET' && (url.origin === 'http://localhost:3000' || url.pathname.startsWith('/restaurant.html') || url.pathname.startsWith('/menu.html'))) {
+        event.respondWith(
+            caches.open(CACHE_NAME).then((cache) => {
+                return fetch(event.request).then((response) => {
+                    cache.put(event.request, response.clone());
+                    return response;
+                }).catch(() => {
+                    return cache.match(event.request);
+                });
+            })
+        );
+    } else {
+        event.respondWith(
+            caches.match(event.request).then((response) => {
+                return response || fetch(event.request).then((response) => {
+                    if (event.request.method === 'GET') {
+                        return caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, response.clone());
+                            return response;
+                        });
+                    }
+                    return response;
+                });
+            })
+        );
+    }
 });
 
 self.addEventListener('message', (event) => {
