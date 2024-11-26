@@ -13,6 +13,7 @@ const deliveryPartnerRoutes = require('./routes/deliveryPartnerRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const searchRoutes = require('./routes/searchRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const dataRoutes = require('./routes/dataRoutes');
 const {setupSocketIO} = require('./utils/socketUtils');
 
 app.use(express.json()); // Pour parser les corps de requêtes JSON
@@ -48,6 +49,7 @@ app.use('/deliverypartners', deliveryPartnerRoutes);
 app.use('/orders', orderRoutes);
 app.use('/search', searchRoutes);
 app.use('/notifications', notificationRoutes);
+app.use('/data', dataRoutes);
 
 // Route pour la page d'accueil
 app.get('/', (req, res) => {
