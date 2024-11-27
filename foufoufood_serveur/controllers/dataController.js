@@ -5,18 +5,18 @@ const { generateRDF } = require('../utils/rdfUtils');
 
 exports.getData = async (req, res) => {
     const accept = req.headers.accept;
-    if (accept === 'text/html') {
+    if (accept.includes('text/html')) {
         res.send(`
             <html lang="fr">
                 <head>
-                    <title>Documentation de l'API Web Sémantique</title>
+                    <title>FouFouFood | API Web Sémantique</title>
                 </head>
                 <body>
-                    <h1>Documentation de l'API Web Sémantique</h1>
+                    <h1>FouFouFood - API Web Sémantique</h1>
                     <p>Utilisez les routes suivantes pour accéder aux données :</p>
                     <ul>
                         <li><a href="/data/restaurants">/data/restaurants</a></li>
-                        <li><a href="/data/menus">/data/menus</a></li>
+                        <li><a href="/data/menuitems">/data/menuitems</a></li>
                         <li><a href="/data/orders">/data/orders</a></li>
                     </ul>
                 </body>
@@ -41,7 +41,7 @@ exports.getRestaurants = async (req, res) => {
     const accept = req.headers.accept;
     try {
         const restaurants = await Restaurant.find();
-        if (accept === 'text/html') {
+        if (accept.includes('text/html')) {
             res.send(`
                 <html lang="fr">
                     <head>
@@ -55,7 +55,8 @@ exports.getRestaurants = async (req, res) => {
                                     ID: ${restaurant._id}<br>
                                     Nom: ${restaurant.name}<br>
                                     Adresse: ${restaurant.address}<br>
-                                    Cuisine: ${restaurant.cuisine}
+                                    Cuisine: ${restaurant.cuisine}<br>
+                                    <a href="/data/restaurants/${restaurant._id}">Voir les détails et consulter le menu</a>
                                 </li><br>
                             `).join('')}
                         </ul>
@@ -80,7 +81,7 @@ exports.getMenus = async (req, res) => {
     const accept = req.headers.accept;
     try {
         const menus = await MenuItem.find();
-        if (accept === 'text/html') {
+        if (accept.includes('text/html')) {
             res.send(`
                 <html lang="fr">
                     <head>
@@ -96,7 +97,8 @@ exports.getMenus = async (req, res) => {
                                     Description: ${menu.description}<br>
                                     Prix: ${menu.price}€<br>
                                     Catégorie: ${menu.category}<br>
-                                    Restaurant: ${menu.restaurantId}
+                                    Restaurant: ${menu.restaurantId}<br>
+                                    <a href="/data/restaurants/${menu.restaurantId}">Voir les détails du restaurant</a>
                                 </li><br>
                             `).join('')}
                         </ul>
@@ -121,7 +123,7 @@ exports.getOrders = async (req, res) => {
     const accept = req.headers.accept;
     try {
         const orders = await Order.find();
-        if (accept === 'text/html') {
+        if (accept.includes('text/html')) {
             res.send(`
                 <html lang="fr">
                     <head>
@@ -140,7 +142,8 @@ exports.getOrders = async (req, res) => {
                                     Statut : ${order.status}<br>
                                     Adresse de livraison : ${order.deliveryAddress}<br>
                                     ID du livreur : ${order.deliveryPartnerId}<br>
-                                    Date de création : ${order.createdAt}
+                                    Date de création : ${order.createdAt}<br>
+                                    <a href="/data/restaurants/${order.restaurantId}">Voir les détails du restaurant</a>
                                 </li><br>
                             `).join('')}
                         </ul>
@@ -168,7 +171,7 @@ exports.getRestaurantById = async (req, res) => {
         if (!restaurant) {
             return res.status(404).json({ message: 'Restaurant not found' });
         }
-        if (accept === 'text/html') {
+        if (accept.includes('text/html')) {
             res.send(`
                 <html lang="fr">
                     <head>
@@ -206,7 +209,7 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
     const accept = req.headers.accept;
     try {
         const menuItems = await MenuItem.find({ restaurantId: req.params.restaurantId });
-        if (accept === 'text/html') {
+        if (accept.includes('text/html')) {
             res.send(`
                 <html lang="fr">
                     <head>
