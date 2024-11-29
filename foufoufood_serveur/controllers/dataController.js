@@ -23,15 +23,13 @@ exports.getData = async (req, res) => {
             </html>
         `);
     } else if (accept === 'application/rdf+xml') {
-        /*
         const data = {
             restaurants: await Restaurant.find(),
             menus: await MenuItem.find(),
             orders: await Order.find()
         };
-        const rdf = generateRDF(data);
+        const rdf = await generateRDF(data);
         res.type('application/rdf+xml').send(rdf);
-        */
     } else {
         res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
     }
@@ -64,11 +62,9 @@ exports.getRestaurants = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            /*
             const data = { restaurants };
-            const rdf = generateRDF(data);
+            const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
-            */
         } else {
             res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
         }
@@ -106,11 +102,9 @@ exports.getMenus = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            /*
             const data = { menus };
-            const rdf = generateRDF(data);
+            const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
-            */
         } else {
             res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
         }
@@ -151,11 +145,9 @@ exports.getOrders = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            /*
             const data = { orders };
-            const rdf = generateRDF(data);
+            const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
-            */
         } else {
             res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
         }
@@ -192,11 +184,9 @@ exports.getRestaurantById = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            /*
             const data = { restaurants: [restaurant] };
-            const rdf = generateRDF(data);
+            const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
-            */
         } else {
             res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
         }
@@ -232,11 +222,9 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            /*
             const data = { menu: menuItems };
-            const rdf = generateRDF(data);
+            const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
-            */
         } else {
             res.status(406).send('Non Acceptable. Veuillez spécifier un en-tête Accept valide, tel que text/html ou application/rdf+xml.');
         }
