@@ -116,6 +116,7 @@ exports.getMenus = async (req, res) => {
 exports.getOrders = async (req, res) => {
     const accept = req.headers.accept;
     try {
+        const menus = await MenuItem.find();
         const orders = await Order.find();
         if (accept.includes('text/html')) {
             res.send(`
@@ -145,7 +146,7 @@ exports.getOrders = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            const data = { orders };
+            const data = { orders, menus };
             const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
         } else {
