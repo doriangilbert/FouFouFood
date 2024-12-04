@@ -223,7 +223,7 @@ exports.getMenuItemsByRestaurant = async (req, res) => {
                 </html>
             `);
         } else if (accept === 'application/rdf+xml') {
-            const data = { menu: menuItems };
+            const data = { menus: menuItems };
             const rdf = await generateRDF(data);
             res.type('application/rdf+xml').send(rdf);
         } else {
